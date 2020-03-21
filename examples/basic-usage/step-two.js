@@ -38,7 +38,11 @@ export default class StepTwo extends Steps {
 	 * @param {Object} datas Datas from the cache
 	 */
 	renderDatasFromCache (datas) {
-		// this.options.element.querySelector('#form-check').checked = datas.status;
+		for (const key in datas) {
+			if (typeof datas[key] === 'string') {
+				this.options.element.querySelector(`#form-${key}`).value = datas[key];
+			}
+		}
 	}
 
 	/**

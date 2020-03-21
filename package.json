@@ -17,8 +17,8 @@
 		"test": "jest",
 		"test:coverage": "jest --coverage",
 		"test:eslint": "eslint -c ./.eslintrc.js .",
-		"test:markdown": "markdownlint '**/*.md' --ignore node_modules --ignore demo/node_modules",
-		"test:stylelint": "stylelint './src/**/*.css' --config ./stylelint.config.js",
+		"test:markdown": "markdownlint '**/*.md' --ignore node_modules",
+		"test:stylelint": "stylelint './**/*.css' --config ./stylelint.config.js",
 		"test:watch": "jest --watch --coverage"
 	},
 	"dependencies": {},

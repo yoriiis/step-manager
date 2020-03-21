@@ -38,7 +38,6 @@ export default class StepOne extends Steps {
 	 * @param {Object} datas Datas from the cache
 	 */
 	renderDatasFromCache (datas) {
-		console.log(datas);
 		for (const key in datas) {
 			if (typeof datas[key] === 'boolean') {
 				this.options.element.querySelector(`#form-${key}`).checked = datas[key];
