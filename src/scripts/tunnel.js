@@ -32,6 +32,7 @@ export default class Tunnel {
 
 		// Initialize the application router
 		this.initRouter();
+		console.log(this.options.datas);
 	}
 
 	/**
@@ -181,7 +182,7 @@ export default class Tunnel {
 				});
 			})
 			.catch(response => {
-				console.warn('tunnelEnded');
+				console.warn('tunnelEnded', response);
 				this.ended = false;
 				this.options.element.classList.remove('loading');
 			});

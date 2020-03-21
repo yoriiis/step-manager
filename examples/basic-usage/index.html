@@ -3,7 +3,10 @@
 	<head>
 		<title>Tunnel steps - Basic usage</title>
 		<meta charset="UTF-8" />
-		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+		<link
+			href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700&display=swap"
+			rel="stylesheet"
+		/>
 		<link
 			rel="stylesheet"
 			href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -11,8 +14,12 @@
 		<link rel="stylesheet" href="../dist/basic-usage.css" />
 	</head>
 	<body>
+		<div class="loader active">
+			<div class="spinner-border text-warning" role="status">
+				<span class="sr-only">Loading...</span>
+			</div>
+		</div>
 		<div class="container">
-			<button class="btn btn-primary" start-tunnel>Start the tunnel</button>
 			<div id="tunnel"></div>
 		</div>
 		<script src="../dist/basic-usage.js"></script>

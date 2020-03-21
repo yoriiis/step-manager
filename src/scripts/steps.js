@@ -13,7 +13,10 @@ export default class Steps {
 			// Get step data to render from the specific class
 			// Get the template from the specific class and send it datas
 			// Insert the generated HTML for the step
-			this.options.element.insertAdjacentHTML('beforeend', this.getTemplate());
+			this.options.element.insertAdjacentHTML(
+				'beforeend',
+				this.getTemplate(this.getStepDatasToRender())
+			);
 
 			// The DOM is up to date, trigger the after render method with datas from the cache
 			this.afterRender({
@@ -95,7 +98,7 @@ export default class Steps {
 		e.preventDefault();
 
 		// Click is authorized when the step is ready to submit or if the step is optional
-		if (this.checkIfStepIsReadyToSubmit() || this.optionalStep) {
+		if (this.stepIsReadyToSubmit || this.optionalStep) {
 			// Wait a little before trigger the custom event
 			setTimeout(() => {
 				// Dispatch the custom event to the Tunnel
@@ -112,5 +115,26 @@ export default class Steps {
 			// Dispatch the custom event to the Tunnel
 			this.options.element.dispatchEvent(new window.CustomEvent('tunnelPrevious'));
 		}, 0);
+	}
+
+	checkIfStepIsReadyToSubmit () {
+		// If the specific class contains local datas, the step is ready to submit
+		this.stepIsReadyToSubmit = this.getDatasFromStep() !== null;
+
+		// Update the submit button
+		this.updateButtonToValidateStep();
+	}
+
+	/**
+	 * Update the submit button
+	 */
+	updateButtonToValidateStep () {
+		const button = this.currentStep.querySelector('[data-tunnel-next]');
+
+		if (this.stepIsReadyToSubmit || this.optionalStep) {
+			button.classList.remove('disabled');
+		} else {
+			button.classList.add('disabled');
+		}
 	}
 }
