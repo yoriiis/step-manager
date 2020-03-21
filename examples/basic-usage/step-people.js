@@ -107,16 +107,14 @@ export default class StepPeople extends Steps {
 	/**
 	 * Check if the step can be displayed
 	 *
-	 * @returns {Promise<Object>} Status of the render of the step with a Promise
+	 * @returns {Object} Status of the render of the step
 	 */
 	canTheStepBeDisplayed () {
-		return new Promise((resolve, reject) => {
-			// The step can be displayed if the following conditions are resolved:
-			resolve({
-				canBeDisplayed: true,
-				fallbackRoute: this.fallbackRoute
-			});
-		});
+		// The step can be displayed if the following conditions are resolved:
+		return {
+			canBeDisplayed: true,
+			fallbackRoute: this.fallbackRoute
+		};
 	}
 
 	/**

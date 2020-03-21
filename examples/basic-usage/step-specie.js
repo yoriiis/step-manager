@@ -110,23 +110,20 @@ export default class StepSpecie extends Steps {
 	/**
 	 * Check if the step can be displayed
 	 *
-	 * @returns {Promise<Object>} Status of the render of the step with a Promise
+	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed () {
-		return new Promise((resolve, reject) => {
-			// Request datas from API for the specific class
-			// Method is exposed by the Tunnel on each class instance
-			this.requestAllDatasFromCache('step-people', 'step-planet').then(async datas => {
-				this.datasFromPreviousStep = datas;
+	canTheStepBeDisplayed = async () => {
+		// Request datas from API for the specific class
+		// Method is exposed by the Tunnel on each class instance
+		const datas = await this.requestAllDatasFromCache('step-people', 'step-planet');
+		this.datasFromPreviousStep = datas;
 
-				// The step can be displayed if the following conditions are resolved:
-				resolve({
-					canBeDisplayed: datas && datas['step-people'] && datas['step-planet'],
-					fallbackRoute: this.fallbackRoute
-				});
-			});
-		});
-	}
+		// The step can be displayed if the following conditions are resolved:
+		return {
+			canBeDisplayed: datas && datas['step-people'] && datas['step-planet'],
+			fallbackRoute: this.fallbackRoute
+		};
+	};
 
 	/**
 	 * Get datas from this step
