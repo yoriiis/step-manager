@@ -1,15 +1,14 @@
 export default class Steps {
-	constructor () {
-		this.stepIsReadyToSubmit = false;
-	}
-
 	/**
 	 * Render the step
+	 *
 	 * @param {Object} datas Datas from the cache
+	 *
 	 * @returns {Promise} Return the success of the step renderer with a Promise
 	 */
 	render ({ datas }) {
 		this.options = this.requestOptions();
+
 		return new Promise((resolve, reject) => {
 			// Get step data to render from the specific class
 			// Get the template from the specific class and send it datas
@@ -27,6 +26,7 @@ export default class Steps {
 
 	/**
 	 * Function executed after the render of the step
+	 *
 	 * @param {Object} datas Datas from the cache
 	 */
 	afterRender ({ datas }) {
@@ -88,6 +88,7 @@ export default class Steps {
 
 	/**
 	 * Event listener to click on the next step button
+	 *
 	 * @param {Object} e Event listener datas
 	 */
 	clickToNextStep (e) {

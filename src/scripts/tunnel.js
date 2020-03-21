@@ -12,9 +12,7 @@ export default class Tunnel {
 		// Merge default options with user options
 		this.options = Object.assign(defaultOptions, userOptions);
 
-		// Set the variable which will store the local data of the step
 		this.reverseNavigation = false;
-		this.localDatas = {};
 		this.ended = false;
 		this.applicationReady = false;
 		this.previousRoute = null;
@@ -36,6 +34,11 @@ export default class Tunnel {
 		this.initRouter();
 	}
 
+	/**
+	 * Analyze steps and store instance as class property
+	 * Expose new methods to each steps (requestOptions, requestAllDatasFromCache)
+	 * to access the Tunnel form steps
+	 */
 	analyzeSteps () {
 		// Loop on all available steps
 		this.options.steps.forEach((Step, index) => {
@@ -47,7 +50,6 @@ export default class Tunnel {
 
 			// Expose new methods and attributes on each steps
 			currentStep.requestOptions = () => this.options;
-			currentStep.requestId = () => currentStep.id;
 			currentStep.requestAllDatasFromCache = (...filters) => this.getDatasFromCache(filters);
 			currentStep.currentRoute = currentRoute;
 
@@ -116,6 +118,7 @@ export default class Tunnel {
 
 	/**
 	 * Initialize the tunnel
+	 *
 	 * @param {Object} e Event listener datas
 	 */
 	triggerTunnelNext (e) {
@@ -145,6 +148,7 @@ export default class Tunnel {
 
 	/**
 	 * Initialize the tunnel
+	 *
 	 * @param {Object} e Event listener datas
 	 */
 	triggerTunnelPrevious (e) {
@@ -185,6 +189,7 @@ export default class Tunnel {
 
 	/**
 	 * Main hash changed event of the application
+	 *
 	 * @param {Object} e Event listener datas
 	 */
 	hashChanged (e) {
@@ -297,7 +302,9 @@ export default class Tunnel {
 
 	/**
 	 * Create a step
+	 *
 	 * @param {String} route Route of the step
+	 *
 	 * @returns {Promise} Return the success of the step created with a Promise
 	 */
 	createStep ({ route }) {
@@ -327,7 +334,9 @@ export default class Tunnel {
 
 	/**
 	 * Destroy a step
+	 *
 	 * @param {String} route Route of the step
+	 *
 	 * @returns {Promise} Return the success of the step created with a Promise
 	 */
 	destroyStep (route) {
@@ -360,7 +369,9 @@ export default class Tunnel {
 
 	/**
 	 * Get step datas from the cache
+	 *
 	 * @param {Array} filters Filter the request by route
+	 *
 	 * @returns {Object} Datas from the cache with a Promise
 	 */
 	getDatasFromCache (filters) {
@@ -398,6 +409,7 @@ export default class Tunnel {
 
 	/**
 	 * Set step datas to the cache
+	 *
 	 * @returns {Boolean} Success of all data stored in the cache with a Promise
 	 */
 	setDataToCache () {
@@ -430,6 +442,7 @@ export default class Tunnel {
 	/**
 	 * Remove step datas from the cache
 	 * Used only when the tunnel is ended
+	 *
 	 * @returns {Object} Datas from the cache with a Promise
 	 */
 	removeDatasFromCache () {
@@ -443,24 +456,12 @@ export default class Tunnel {
 
 	/**
 	 * Get the previous route
+	 *
 	 * @param {Object} event Event listener datas
+	 *
 	 * @returns {String} returnValue Previous route
 	 */
 	getPreviousRoute (route) {
-		// let returnValue = [null];
-
-		// if (e) {
-		// 	const route = e.oldURL.split('#')[1] || null;
-
-		// 	if (route !== null) {
-		// 		const routeHasFragment = route.indexOf('/') !== -1;
-		// 		const fragments = routeHasFragment ? route.split('/') : [route];
-
-		// 		returnValue = fragments;
-		// 	}
-		// }
-
-		// return returnValue;
 		const previousStep = this.steps[this.stepsOrder[this.getIndexFromRoute(route) - 1]];
 		return previousStep ? previousStep.route : null;
 	}
@@ -468,7 +469,9 @@ export default class Tunnel {
 	/**
 	 * Get the next route from the step order array
 	 * If there is no next step, the function return "end"
+	 *
 	 * @param {String} route Current route
+	 *
 	 * @returns {String} Next route or "end"
 	 */
 	getNextRoute (route) {
@@ -478,6 +481,7 @@ export default class Tunnel {
 
 	/**
 	 * Get index of the route from the step order array
+	 *
 	 * @returns {Integer} Index of the route
 	 */
 	getIndexFromRoute (route) {
@@ -489,6 +493,7 @@ export default class Tunnel {
 	/**
 	 * Get the current route
 	 * If the route contains fragments, split them
+	 *
 	 * @returns {Array} fragments List of fragments of the route
 	 */
 	getRoute () {
@@ -497,12 +502,16 @@ export default class Tunnel {
 
 	/**
 	 * Set the route
+	 *
 	 * @returns {String} route New value for the route
 	 */
 	setRoute (route) {
 		window.location.hash = route;
 	}
 
+	/**
+	 * Destroy the tunnel (event listeners)
+	 */
 	destroy () {
 		this.options.element.removeEventListener('tunnelNext', this.onTriggerTunnelNext);
 		this.options.element.removeEventListener('tunnelPrevious', this.onTriggerTunnelPrevious);

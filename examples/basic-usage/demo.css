@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+    &-item {
+        list-style-type: none;
+
+        &:last-child {
+            margin-left: 10px;
+        }
+    }
+}
