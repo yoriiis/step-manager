@@ -3,27 +3,21 @@ export default class Steps {
 	 * Render the step
 	 *
 	 * @param {Object} datas Datas from the cache
-	 *
-	 * @returns {Promise} Return the success of the step renderer with a Promise
 	 */
 	render ({ datas }) {
 		this.options = this.requestOptions();
 
-		return new Promise((resolve, reject) => {
-			// Get step data to render from the specific class
-			// Get the template from the specific class and send it datas
-			// Insert the generated HTML for the step
-			this.options.element.insertAdjacentHTML(
-				'beforeend',
-				this.getTemplate(this.getStepDatasToRender())
-			);
+		// Get step data to render from the specific class
+		// Get the template from the specific class and send it datas
+		// Insert the generated HTML for the step
+		this.options.element.insertAdjacentHTML(
+			'beforeend',
+			this.getTemplate(this.getStepDatasToRender())
+		);
 
-			// The DOM is up to date, trigger the after render method with datas from the cache
-			this.afterRender({
-				datas: datas
-			});
-
-			resolve();
+		// The DOM is up to date, trigger the after render method with datas from the cache
+		this.afterRender({
+			datas: datas
 		});
 	}
 

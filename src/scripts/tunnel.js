@@ -32,7 +32,6 @@ export default class Tunnel {
 
 		// Initialize the application router
 		this.initRouter();
-		console.log(this.options.datas);
 	}
 
 	/**
@@ -101,18 +100,18 @@ export default class Tunnel {
 	 * Initialize the main router of the application
 	 */
 	initRouter () {
-		// Get current route by fragments (#fragment1/fragment2)
+		// Get current route
 		const route = this.getRoute();
 
 		// Declare the default route
-		// If fragment exist, keep it, else set it to the default route
+		// If route exist, keep it, else set it to the default route
 		this.currentRoute = route === '' ? this.defaultRoute : route;
 
 		// Init the router with the default route
 		if (route === '') {
 			this.setRoute(this.currentRoute);
 		} else {
-			// Page started with one fragment, trigger hash changed
+			// Page started with a route, trigger hash changed
 			this.hashChanged();
 		}
 	}
@@ -122,7 +121,7 @@ export default class Tunnel {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	triggerTunnelNext (e) {
+	triggerTunnelNext = async e => {
 		this.reverseNavigation = false;
 		// Check if the tunnel isn't ended
 		if (!this.ended) {
@@ -131,21 +130,21 @@ export default class Tunnel {
 			const nextRoute = this.getNextRoute(this.currentRoute);
 
 			// Store step datas to the cache
-			this.setDataToCache().then(status => {
-				// If the storage is OK
-				if (status) {
-					// Redirect to the next route or the end of the tunnel
-					if (nextRoute !== 'end') {
-						this.setRoute(nextRoute);
-					} else {
-						this.tunnelEnded();
-					}
+			const status = await this.setDataToCache();
+
+			// If the storage is OK
+			if (status) {
+				// Redirect to the next route or the end of the tunnel
+				if (nextRoute !== 'end') {
+					this.setRoute(nextRoute);
 				} else {
-					console.warn('triggerTunnelNext');
+					this.tunnelEnded();
 				}
-			});
+			} else {
+				console.warn('triggerTunnelNext');
+			}
 		}
-	}
+	};
 
 	/**
 	 * Initialize the tunnel
@@ -163,108 +162,102 @@ export default class Tunnel {
 	/**
 	 * The tunnel is ended
 	 */
-	tunnelEnded () {
+	tunnelEnded = async () => {
 		this.ended = true;
 
 		// Freeze the display to prevent multiple submit
 		this.options.element.classList.add('loading');
 
 		// Get current datas from the cache
-		this.getDatasFromCache()
-			.then(async datas => {
-				if (typeof this.options.onEnded === 'function') {
-					await this.options.onEnded(datas);
-				}
-				this.destroyStep(this.currentRoute).then(() => {
-					this.removeDatasFromCache();
-					this.destroy();
-					this.setRoute('');
-				});
-			})
-			.catch(response => {
-				console.warn('tunnelEnded', response);
-				this.ended = false;
-				this.options.element.classList.remove('loading');
-			});
-	}
+		const datas = await this.getDatasFromCache();
+
+		if (typeof this.options.onEnded === 'function') {
+			await this.options.onEnded(datas);
+		}
+
+		await this.destroyStep(this.currentRoute);
+		this.removeDatasFromCache();
+		this.destroy();
+		this.setRoute('');
+	};
 
 	/**
 	 * Main hash changed event of the application
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	hashChanged (e) {
+	hashChanged = async e => {
 		// Get the current route
 		const route = this.getRoute();
 
 		// Check if the step can be displayed
-		this.checkIfTheStepCanBeDisplay({
+		const datas = await this.checkIfTheStepCanBeDisplay({
 			route: route,
 			event: e
-		}).then(datas => {
-			this.currentRoute = route;
+		});
 
-			// The step can be dislayed
-			if (datas.canBeDisplayed) {
-				// Event listener exist when user click on next step button
-				// Event listener doesn't exist when setRoute is called manually
-				if (e) {
-					// Get the previous route
-					let previousRoute;
+		this.currentRoute = route;
 
-					if (this.stepRedirected.redirect) {
-						previousRoute = this.stepRedirected.previousRoute;
-					} else if (this.reverseNavigation) {
-						previousRoute = this.getNextRoute(this.currentRoute);
-					} else {
-						previousRoute = this.getPreviousRoute(this.currentRoute);
-					}
+		// The step can be dislayed
+		if (datas.canBeDisplayed) {
+			// Event listener exist when user click on next step button
+			// Event listener doesn't exist when setRoute is called manually
+			if (e) {
+				// Get the previous route
+				let previousRoute;
 
-					// Check if previous step need to be destroyed
-					// Prevent destruction when previousRoute does not exist or when user is redirected
-					if (previousRoute && !this.stepRedirected.redirect) {
-						this.previousRoute = !this.stepRedirected.redirect
-							? previousRoute
-							: this.stepRedirected.previousRoute;
-
-						// Destroy the previous step
-						this.destroyStep(this.previousRoute).then(() => {
-							// Create the new step on destruction callback
-							this.createStep({
-								route: this.currentRoute
-							}).then(() => {});
-						});
-
-						this.stepDestroyed = true;
-					}
+				if (this.stepRedirected.redirect) {
+					previousRoute = this.stepRedirected.previousRoute;
+				} else if (this.reverseNavigation) {
+					previousRoute = this.getNextRoute(this.currentRoute);
+				} else {
+					previousRoute = this.getPreviousRoute(this.currentRoute);
 				}
 
-				// If destroy method was not called, create the step now
-				if (!this.stepDestroyed) {
-					this.createStep({
+				// Check if previous step need to be destroyed
+				// Prevent destruction when previousRoute does not exist or when user is redirected
+				if (previousRoute && !this.stepRedirected.redirect) {
+					this.previousRoute = !this.stepRedirected.redirect
+						? previousRoute
+						: this.stepRedirected.previousRoute;
+
+					// Destroy the previous step
+					await this.destroyStep(this.previousRoute);
+
+					// Create the new step on destruction callback
+					await this.createStep({
 						route: this.currentRoute
-					}).then(() => {});
+					});
 
-					// Reset the redirect marker
-					if (this.stepRedirected.redirect) {
-						this.stepRedirected.redirect = false;
-					}
-				}
-			} else {
-				// The step can't be displayed, redirect user to the previous route or the fallback route
-				this.stepRedirected = {
-					redirect: true,
-					previousRoute: null
-				};
-				this.previousRoute = null;
-
-				// If the step has a fallback route, use it
-				if (datas.fallbackRoute) {
-					this.setRoute(datas.fallbackRoute);
+					this.stepDestroyed = true;
 				}
 			}
-		});
-	}
+
+			// If destroy method was not called, create the step now
+			if (!this.stepDestroyed) {
+				await this.createStep({
+					route: this.currentRoute
+				});
+
+				// Reset the redirect marker
+				if (this.stepRedirected.redirect) {
+					this.stepRedirected.redirect = false;
+				}
+			}
+		} else {
+			// The step can't be displayed, redirect user to the previous route or the fallback route
+			this.stepRedirected = {
+				redirect: true,
+				previousRoute: null
+			};
+			this.previousRoute = null;
+
+			// If the step has a fallback route, use it
+			if (datas.fallbackRoute) {
+				this.setRoute(datas.fallbackRoute);
+			}
+		}
+	};
 
 	/**
 	 * Check if the step can be displayed
@@ -272,85 +265,70 @@ export default class Tunnel {
 	 * @param {String} route Route hash
 	 * @param {Object} event Event listener datas
 	 *
-	 * @returns {Promise<Object>} Status of the render of the step with a Promise
+	 * @returns {Object} Status of the render of the step
 	 */
-	checkIfTheStepCanBeDisplay ({ route, event }) {
-		return new Promise((resolve, reject) => {
-			// Check the validity of the first fragment
-			if (this.steps[route]) {
-				// Call the verification method of the step
-				// The step itself knows if it can be rendered
-				this.steps[route].canTheStepBeDisplayed().then(datas => resolve(datas));
-			} else {
-				let fallbackRoute = this.defaultRoute;
+	checkIfTheStepCanBeDisplay = async ({ route, event }) => {
+		// Check the validity of the route
+		if (this.steps[route]) {
+			// Call the verification method of the step
+			// The step itself knows if it can be rendered
+			const datas = await this.steps[route].canTheStepBeDisplayed();
+			return datas;
+		} else {
+			let fallbackRoute = this.defaultRoute;
 
-				// Get fallback route from previous route if exist
-				const previousRoute = this.getPreviousRoute(route);
-				if (previousRoute) {
-					if (this.steps[previousRoute].fallbackRoute) {
-						fallbackRoute = this.steps[previousRoute].fallbackRoute;
-					}
+			// Get fallback route from previous route if exist
+			const previousRoute = this.getPreviousRoute(route);
+			if (previousRoute) {
+				if (this.steps[previousRoute].fallbackRoute) {
+					fallbackRoute = this.steps[previousRoute].fallbackRoute;
 				}
-
-				// Unknown route, redirect to the fallback route
-				resolve({
-					canBeDisplayed: false,
-					fallbackRoute: fallbackRoute
-				});
 			}
-		});
-	}
+
+			// Unknown route, redirect to the fallback route
+			return {
+				canBeDisplayed: false,
+				fallbackRoute: fallbackRoute
+			};
+		}
+	};
 
 	/**
 	 * Create a step
 	 *
 	 * @param {String} route Route of the step
-	 *
-	 * @returns {Promise} Return the success of the step created with a Promise
 	 */
-	createStep ({ route }) {
-		return new Promise((resolve, reject) => {
-			// Get the unique identifier of the step
-			const currentStepId = this.steps[route].id;
+	createStep = async ({ route }) => {
+		// Get the unique identifier of the step
+		const currentStepId = this.steps[route].id;
 
-			// Get datas from cache before render the step
-			this.getDatasFromCache([currentStepId]).then(datasFromCache => {
-				// Format data if exist
-				const datasFormatted =
-					datasFromCache !== null ? datasFromCache[currentStepId].datas : null;
+		// Get datas from cache before render the step
+		const datasFromCache = await this.getDatasFromCache([currentStepId]);
 
-				// Call the render method of the step
-				this.steps[route]
-					.render({
-						datas: datasFormatted
-					})
-					.then(() => {
-						// Call the step render callback and resolve the Promise
-						this.stepCreated();
-						resolve();
-					});
-			});
+		// Format data if exist
+		const datasFormatted = datasFromCache !== null ? datasFromCache[currentStepId].datas : null;
+
+		// Call the render method of the step
+		await this.steps[route].render({
+			datas: datasFormatted
 		});
-	}
+
+		this.stepCreated();
+	};
 
 	/**
 	 * Destroy a step
 	 *
 	 * @param {String} route Route of the step
-	 *
-	 * @returns {Promise} Return the success of the step created with a Promise
 	 */
 	destroyStep (route) {
-		return new Promise((resolve, reject) => {
-			this.options.element.classList.remove('active');
+		this.options.element.classList.remove('active');
 
-			// Wait the step is totally disappear before destroy it
-			setTimeout(() => {
-				// Call the destroy method of the step and resolve the Promise
-				this.steps[route].destroy();
-				resolve();
-			}, 0);
-		});
+		// Wait the step is totally disappear before destroy it
+		setTimeout(async () => {
+			// Call the destroy method of the step
+			await this.steps[route].destroy();
+		}, 0);
 	}
 
 	/**
@@ -373,78 +351,72 @@ export default class Tunnel {
 	 *
 	 * @param {Array} filters Filter the request by route
 	 *
-	 * @returns {Object} Datas from the cache with a Promise
+	 * @returns {Object} Datas from the cache
 	 */
 	getDatasFromCache (filters) {
-		return new Promise((resolve, reject) => {
-			let datasToReturn = null;
+		let datasToReturn = null;
 
-			// Retrieve the data in the cache with the correct key
-			// Cache key is composed by profile id and a static name
-			const datas =
-				window[this.options.cacheMethod].getItem(`${this.options.keyBrowserStorage}`) ||
-				null;
+		// Retrieve the data in the cache with the correct key
+		// Cache key is composed by profile id and a static name
+		const datas =
+			window[this.options.cacheMethod].getItem(`${this.options.keyBrowserStorage}`) || null;
 
-			if (datas !== null) {
-				// Datas are stringify, parse them
-				const datasFormatted = JSON.parse(datas);
+		if (datas !== null) {
+			// Datas are stringify, parse them
+			const datasFormatted = JSON.parse(datas);
 
-				// Check if datas must be filtered
-				if (Array.isArray(filters)) {
-					// Loop on all route filters and extract selected routes datas
-					filters.forEach(filter => {
-						if (datasFormatted[filter]) {
-							if (datasToReturn === null) {
-								datasToReturn = {};
-							}
-							datasToReturn[filter] = datasFormatted[filter];
+			// Check if datas must be filtered
+			if (Array.isArray(filters)) {
+				// Loop on all route filters and extract selected routes datas
+				filters.forEach(filter => {
+					if (datasFormatted[filter]) {
+						if (datasToReturn === null) {
+							datasToReturn = {};
 						}
-					});
-				} else {
-					datasToReturn = datasFormatted;
-				}
+						datasToReturn[filter] = datasFormatted[filter];
+					}
+				});
+			} else {
+				datasToReturn = datasFormatted;
 			}
-			resolve(datasToReturn);
-		});
+		}
+		return datasToReturn;
 	}
 
 	/**
 	 * Set step datas to the cache
 	 *
-	 * @returns {Boolean} Success of all data stored in the cache with a Promise
+	 * @returns {Boolean} Success of all data stored in the cache
 	 */
-	setDataToCache () {
-		return new Promise((resolve, reject) => {
-			// Get the current step id
-			const currentStepId = this.steps[this.currentRoute].id;
+	setDataToCache = async () => {
+		// Get the current step id
+		const currentStepId = this.steps[this.currentRoute].id;
 
-			// Get datas from the current step
-			this.datas[currentStepId].datas = this.steps[this.currentRoute].getDatasFromStep();
+		// Get datas from the current step
+		this.datas[currentStepId].datas = this.steps[this.currentRoute].getDatasFromStep();
 
-			// Get datas from cache
-			this.getDatasFromCache().then(datasFromCache => {
-				if (datasFromCache === null) {
-					datasFromCache = {};
-				}
-				// Extract datas of the current step
-				datasFromCache[currentStepId] = this.datas[currentStepId];
+		// Get datas from cache
+		let datasFromCache = await this.getDatasFromCache();
+		if (datasFromCache === null) {
+			datasFromCache = {};
+		}
+		// Extract datas of the current step
+		datasFromCache[currentStepId] = this.datas[currentStepId];
 
-				// Store step datas in the cache
-				// Cache key is prefixed by the profile id
-				window[this.options.cacheMethod].setItem(
-					`${this.options.keyBrowserStorage}`,
-					JSON.stringify(datasFromCache)
-				);
-				resolve(datasFromCache);
-			});
-		});
-	}
+		// Store step datas in the cache
+		// Cache key is prefixed by the profile id
+		window[this.options.cacheMethod].setItem(
+			`${this.options.keyBrowserStorage}`,
+			JSON.stringify(datasFromCache)
+		);
+		return datasFromCache;
+	};
 
 	/**
 	 * Remove step datas from the cache
 	 * Used only when the tunnel is ended
 	 *
-	 * @returns {Object} Datas from the cache with a Promise
+	 * @returns {Object} Datas from the cache
 	 */
 	removeDatasFromCache () {
 		// Try to remove datas in the cache
@@ -493,9 +465,8 @@ export default class Tunnel {
 
 	/**
 	 * Get the current route
-	 * If the route contains fragments, split them
 	 *
-	 * @returns {Array} fragments List of fragments of the route
+	 * @returns {Array} Current route
 	 */
 	getRoute () {
 		return window.location.hash.substr(1);
