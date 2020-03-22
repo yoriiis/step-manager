@@ -92,7 +92,7 @@ export default class StepPeople extends Steps {
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button type="submit" class="btn btn-success disabled" data-tunnel-next>Next step</button>
+							<button type="submit" class="btn disabled" data-tunnel-next>Next step</button>
 						</li>
 					</ul>
                 </div>`;

@@ -29,7 +29,6 @@ export default class StepSpecie extends Steps {
 		// Expose variables as class properties
 		// Fallback route is null for the first step of the tunnel
 		this.fallbackRoute = 'planet';
-		this.optionalStep = true;
 	}
 
 	addEvents () {
@@ -92,10 +91,10 @@ export default class StepSpecie extends Steps {
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button class="btn btn-success" data-tunnel-previous>Previous step</button>
+							<button class="btn" data-tunnel-previous>Previous step</button>
 						</li>
 						<li class="nav-item">
-							<button type="submit" class="btn btn-success" data-tunnel-next>Next step</button>
+							<button type="submit" class="btn disabled" data-tunnel-next>Submit</button>
 						</li>
 					</ul>
                 </div>`;
@@ -112,18 +111,20 @@ export default class StepSpecie extends Steps {
 	 *
 	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed = async () => {
+	canTheStepBeDisplayed () {
 		// Request datas from API for the specific class
 		// Method is exposed by the Tunnel on each class instance
-		const datas = await this.requestAllDatasFromCache('step-people', 'step-planet');
+		const datas = this.requestAllDatasFromCache('step-people', 'step-planet');
 		this.datasFromPreviousStep = datas;
+		const isStepPeopleValid = datas && datas['step-people'] && datas['step-people'].datas;
+		const isStepPlanetValid = datas && datas['step-planet'] && datas['step-planet'].datas;
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: datas && datas['step-people'] && datas['step-planet'],
-			fallbackRoute: this.fallbackRoute
+			canBeDisplayed: !!(isStepPeopleValid && isStepPlanetValid),
+			fallbackRoute: isStepPlanetValid ? this.fallbackRoute : 'people'
 		};
-	};
+	}
 
 	/**
 	 * Get datas from this step
