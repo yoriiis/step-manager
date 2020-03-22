@@ -9,7 +9,8 @@ export default class Tunnel {
 			datas: {},
 			steps: [],
 			cacheMethod: 'sessionStorage',
-			keyBrowserStorage: 'tunnel'
+			keyBrowserStorage: 'tunnel',
+			onEnded: () => {}
 		};
 
 		// Merge default options with user options
