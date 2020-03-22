@@ -92,10 +92,10 @@ export default class StepPlanet extends Steps {
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button class="btn btn-success" data-tunnel-previous>Previous step</button>
+							<button class="btn" data-tunnel-previous>Previous step</button>
 						</li>
 						<li class="nav-item">
-							<button type="submit" class="btn btn-success disabled" data-tunnel-next>Next step</button>
+							<button type="submit" class="btn btn disabled" data-tunnel-next>Next step</button>
 						</li>
 					</ul>
                 </div>`;
@@ -112,18 +112,18 @@ export default class StepPlanet extends Steps {
 	 *
 	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed = async () => {
+	canTheStepBeDisplayed () {
 		// Request datas from API for the specific class
 		// Method is exposed by the Tunnel on each class instance
-		const datas = await this.requestAllDatasFromCache('step-people');
+		const datas = this.requestAllDatasFromCache('step-people');
 		this.datasFromPreviousStep = datas;
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: datas && datas['step-people'],
+			canBeDisplayed: !!(datas && datas['step-people'] && datas['step-people'].datas),
 			fallbackRoute: this.fallbackRoute
 		};
-	};
+	}
 
 	/**
 	 * Get datas from this step

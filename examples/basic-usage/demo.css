@@ -50,14 +50,10 @@ body {
     margin: 20px 0;
 }
 
-.btn-success {
-    &,
-    &.disabled,
-    &:hover {
-        background-color: var(--yellow);
-        border-color: var(--yellow);
-        color: var(--black);
-    }
+.btn {
+    background-color: var(--yellow);
+    border-color: var(--yellow);
+    color: var(--black);
 }
 
 .list {
