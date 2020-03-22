@@ -1,14 +1,6 @@
 export default class Router {
-	constructor ({
-		defaultRoute,
-		currentRoute,
-		stepsOrder,
-		steps,
-		element,
-		getDatasFromCache = () => {}
-	} = {}) {
+	constructor ({ defaultRoute, stepsOrder, steps, element, getDatasFromCache = () => {} } = {}) {
 		this.defaultRoute = defaultRoute;
-		this.currentRoute = currentRoute;
 		this.stepsOrder = stepsOrder;
 		this.steps = steps;
 		this.element = element;
