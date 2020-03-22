@@ -1,11 +1,58 @@
 'use strict';
 
-import StepPeople from '../../examples/src/scripts/step-people';
-import StepPlanet from '../../examples/src/scripts/step-planet';
+import Steps from '../steps';
 import CacheManager from '../cache-manager';
 import Router from '../router';
 
 let router;
+
+class StepPeople extends Steps {
+	id = 'step-people';
+	route = 'people';
+	selector = '.step-people';
+	canTheStepBeDisplayed () {
+		return {
+			canBeDisplayed: true,
+			fallbackRoute: null
+		};
+	}
+
+	getTemplate () {
+		return '<div class="step-people"></div>';
+	}
+
+	getStepDatasToRender () {
+		return {};
+	}
+
+	getDatasFromStep () {
+		return {};
+	}
+}
+
+class StepPlanet extends Steps {
+	id = 'step-planet';
+	route = 'planet';
+	selector = '.step-planet';
+	canTheStepBeDisplayed () {
+		return {
+			canBeDisplayed: true,
+			fallbackRoute: null
+		};
+	}
+
+	getTemplate () {
+		return '<div class="step-planet"></div>';
+	}
+
+	getStepDatasToRender () {
+		return {};
+	}
+
+	getDatasFromStep () {
+		return {};
+	}
+}
 
 const getOptions = () => {
 	return {
