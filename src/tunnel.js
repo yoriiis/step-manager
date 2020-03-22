@@ -18,7 +18,6 @@ export default class Tunnel {
 		this.ended = false;
 		this.applicationReady = false;
 		this.previousRoute = null;
-		this.currentRoute = null;
 		this.stepsOrder = [];
 		this.datas = {};
 		this.steps = {};
@@ -40,7 +39,6 @@ export default class Tunnel {
 
 		this.Router = new Router({
 			defaultRoute: this.defaultRoute,
-			currentRoute: this.currentRoute,
 			stepsOrder: this.stepsOrder,
 			steps: this.steps,
 			element: this.options.element,
@@ -53,7 +51,7 @@ export default class Tunnel {
 
 	/**
 	 * Analyze steps and store instance as class property
-	 * Expose new methods to each steps (requestOptions, requestAllDatasFromCache)
+	 * Expose new methods to each steps (requestOptions, requestDatas)
 	 * to access the Tunnel form steps
 	 */
 	analyzeSteps () {
@@ -67,9 +65,7 @@ export default class Tunnel {
 
 			// Expose new methods and attributes on each steps
 			currentStep.requestOptions = () => this.options;
-			currentStep.requestAllDatasFromCache = (...filters) =>
-				this.CacheManager.getDatasFromCache(filters);
-			currentStep.currentRoute = currentRoute;
+			currentStep.requestDatas = (...filters) => filters.map(filter => this.datas[filter]);
 
 			// Store the instance reference in class properties
 			this.steps[currentRoute] = currentStep;
@@ -151,17 +147,15 @@ export default class Tunnel {
 		// Freeze the display to prevent multiple submit
 		this.options.element.classList.add('loading');
 
-		// Get current datas from the cache
-		const datas = this.CacheManager.getDatasFromCache();
+		this.Router.destroyStep(this.Router.currentRoute);
+		this.Router.setRoute('');
+		this.destroy();
 
 		if (typeof this.options.onEnded === 'function') {
-			this.options.onEnded(datas);
+			this.options.onEnded(this.CacheManager.getDatasFromCache());
 		}
 
-		// this.destroyStep(this.currentRoute); TODO
 		this.CacheManager.removeDatasFromCache();
-		this.destroy();
-		this.Router.setRoute('');
 	}
 
 	/**

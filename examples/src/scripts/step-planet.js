@@ -1,73 +1,10 @@
-import { Steps } from '../../../dist/tunnel-steps';
+import CustomSteps from './custom-steps';
 
-export default class StepPlanet extends Steps {
-	/**
-	 * Get the unique identifier of the step
-	 */
-	get id () {
-		return 'step-planet';
-	}
-
-	/**
-	 * Get the route of the step
-	 */
-	get route () {
-		return 'planet';
-	}
-
-	/**
-	 * Get the selector of the step
-	 */
-	get selector () {
-		return '.step-planet';
-	}
-
-	constructor () {
-		// Execute the constructor of the steps class
-		super();
-
-		// Expose variables as class properties
-		// Fallback route is null for the first step of the tunnel
-		this.fallbackRoute = 'people';
-		this.optionalStep = false;
-	}
-
-	addEvents () {
-		// Execute the method of the steps class before this one
-		super.addEvents();
-
-		const buttons = [...this.currentStep.querySelectorAll('[data-list-button]')];
-		buttons.forEach(button => {
-			this.onClickOnListButton = e => {
-				this.clickOnListButton(e);
-			};
-			button.addEventListener('click', this.onClickOnListButton, false);
-		});
-	}
-
-	clickOnListButton (e) {
-		e.preventDefault();
-		e.currentTarget.classList.toggle('active');
-
-		// Check if the step is ready to submit
-		this.checkIfStepIsReadyToSubmit();
-	}
-
-	/**
-	 * Render step datas from the cache
-	 *
-	 * @param {Object} datas Datas from the cache
-	 */
-	renderDatasFromCache (datas) {
-		datas.forEach(data =>
-			this.currentStep
-				.querySelector(`[data-list-button][data-key="${data.key}"]`)
-				.classList.add('active')
-		);
-
-		// Verify if the step can be directly submitted
-		this.checkIfStepIsReadyToSubmit();
-	}
+export default class StepPlanet extends CustomSteps {
+	id = 'step-planet';
+	route = 'planet';
+	selector = '.step-planet';
+	fallbackRoute = 'people';
 
 	/**
 	 * Get step template
@@ -115,26 +52,12 @@ export default class StepPlanet extends Steps {
 	canTheStepBeDisplayed () {
 		// Request datas from API for the specific class
 		// Method is exposed by the Tunnel on each class instance
-		const datas = this.requestAllDatasFromCache('step-people');
-		this.datasFromPreviousStep = datas;
+		const datas = this.requestDatas('step-people');
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: !!(datas && datas['step-people'] && datas['step-people'].datas),
+			canBeDisplayed: !!(datas && datas[0] && datas[0].datas),
 			fallbackRoute: this.fallbackRoute
 		};
-	}
-
-	/**
-	 * Get datas from this step
-	 *
-	 * @returns {Object} Local datas of the step
-	 */
-	getDatasFromStep () {
-		const datas = [...document.querySelectorAll('[data-list-button].active')].map(item => ({
-			key: item.getAttribute('data-key'),
-			name: item.innerText
-		}));
-		return datas.length ? datas : null;
 	}
 }

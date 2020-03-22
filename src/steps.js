@@ -1,4 +1,7 @@
 export default class Steps {
+	fallbackRoute = null;
+	optionalStep = false;
+
 	/**
 	 * Render the step
 	 *

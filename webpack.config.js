@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
 	return {
 		watch: !isProduction,
 		entry: {
-			'tunnel-steps': './src/scripts/index.js'
+			'tunnel-steps': './src/index.js'
 		},
 		watchOptions: {
 			ignored: /node_modules/
