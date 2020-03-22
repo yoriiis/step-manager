@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
 	return {
 		watch: !isProduction,
 		entry: {
-			'basic-usage': `${path.resolve(__dirname, './basic-usage/demo.js')}`
+			demo: `${path.resolve(__dirname, './src/scripts/demo.js')}`
 		},
 		watchOptions: {
 			ignored: /node_modules/

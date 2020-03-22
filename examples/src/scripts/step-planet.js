@@ -1,25 +1,25 @@
-import { Steps } from '../../dist/tunnel-steps.js';
+import { Steps } from '../../../dist/tunnel-steps';
 
-export default class StepPeople extends Steps {
+export default class StepPlanet extends Steps {
 	/**
 	 * Get the unique identifier of the step
 	 */
 	get id () {
-		return 'step-people';
+		return 'step-planet';
 	}
 
 	/**
 	 * Get the route of the step
 	 */
 	get route () {
-		return 'people';
+		return 'planet';
 	}
 
 	/**
 	 * Get the selector of the step
 	 */
 	get selector () {
-		return '.step-people';
+		return '.step-planet';
 	}
 
 	constructor () {
@@ -28,7 +28,7 @@ export default class StepPeople extends Steps {
 
 		// Expose variables as class properties
 		// Fallback route is null for the first step of the tunnel
-		this.fallbackRoute = null;
+		this.fallbackRoute = 'people';
 		this.optionalStep = false;
 	}
 
@@ -79,20 +79,23 @@ export default class StepPeople extends Steps {
 	 */
 	getTemplate (datas) {
 		/* prettier-ignore */
-		return `<div class="step-people">
-                    <h2 class="title">Choose your favorites people</h2>
+		return `<div class="step-planet">
+                    <h2 class="title">Choose your favorites planet</h2>
 					<ul class="list">
-						${datas.listPeople.map((people, index) => `
+						${datas.listPlanet.map((planet, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
-									${people.name}
+									${planet.name}
 								</button>
 							</li>
 						`).join('')}
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button type="submit" class="btn disabled" data-tunnel-next>Next step</button>
+							<button class="btn" data-tunnel-previous>Previous step</button>
+						</li>
+						<li class="nav-item">
+							<button type="submit" class="btn btn disabled" data-tunnel-next>Next step</button>
 						</li>
 					</ul>
                 </div>`;
@@ -100,7 +103,7 @@ export default class StepPeople extends Steps {
 
 	getStepDatasToRender () {
 		return {
-			listPeople: this.options.datas.people.results
+			listPlanet: this.options.datas.planets.results
 		};
 	}
 
@@ -110,9 +113,14 @@ export default class StepPeople extends Steps {
 	 * @returns {Object} Status of the render of the step
 	 */
 	canTheStepBeDisplayed () {
+		// Request datas from API for the specific class
+		// Method is exposed by the Tunnel on each class instance
+		const datas = this.requestAllDatasFromCache('step-people');
+		this.datasFromPreviousStep = datas;
+
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: true,
+			canBeDisplayed: !!(datas && datas['step-people'] && datas['step-people'].datas),
 			fallbackRoute: this.fallbackRoute
 		};
 	}

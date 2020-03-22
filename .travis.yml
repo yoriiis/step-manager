@@ -25,5 +25,16 @@ jobs:
         - npm run test
         - npm run build
         - npm run build:example
+        - npm run create:gh-pages
+        - cd gh-pages
+      deploy:
+        provider: pages
+        cleanup: false
+        token: $GITHUB_TOKEN
+        keep_history: false
+        edge: true
+        commit_message: Deploy Travis CI to %{target_branch} branch
+        on:
+          branch: master
     - after_success:
         - npm run coverage
