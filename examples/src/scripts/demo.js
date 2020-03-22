@@ -1,8 +1,8 @@
 import StepPeople from './step-people';
 import StepPlanet from './step-planet';
 import StepSpecie from './step-specie';
-import { Tunnel } from '../../dist/tunnel-steps.js';
-import './demo.css';
+import { Tunnel } from '../../../dist/tunnel-steps.js';
+import '../styles/demo.css';
 
 const init = async function () {
 	let datas = window.localStorage.getItem('swapi');
