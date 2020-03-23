@@ -1,9 +1,13 @@
 export default class CacheManager {
-	constructor ({ cacheMethod, keyBrowserStorage, datas, steps } = {}) {
-		this.cacheMethod = cacheMethod;
-		this.keyBrowserStorage = keyBrowserStorage;
-		this.datas = datas;
-		this.steps = steps;
+	constructor (options) {
+		const userOptions = options || {};
+		const defaultOptions = {
+			cacheMethod: 'sessionStorage',
+			keyBrowserStorage: 'stepManager'
+		};
+
+		// Merge default options with user options
+		this.options = Object.assign(defaultOptions, userOptions);
 	}
 
 	/**
@@ -18,7 +22,8 @@ export default class CacheManager {
 
 		// Retrieve the data in the cache with the correct key
 		// Cache key is composed by profile id and a static name
-		const datas = window[this.cacheMethod].getItem(`${this.keyBrowserStorage}`) || null;
+		const datas =
+			window[this.options.cacheMethod].getItem(`${this.options.keyBrowserStorage}`) || null;
 
 		if (datas !== null) {
 			// Datas are stringify, parse them
@@ -47,13 +52,22 @@ export default class CacheManager {
 	 *
 	 * @returns {Boolean} Success of all data stored in the cache
 	 */
-	setDatasToCache (datas) {
-		// Try to remove datas in the cache
-		try {
-			window[this.cacheMethod].setItem(`${this.keyBrowserStorage}`, JSON.stringify(datas));
-		} catch (error) {
-			console.warn(error);
+	setDatasToCache ({ route, datas }) {
+		let datasFromCache = this.getDatasFromCache();
+
+		// First time
+		if (!datasFromCache) {
+			datasFromCache = {};
 		}
+		if (!datasFromCache[route]) {
+			datasFromCache[route] = {};
+		}
+		datasFromCache[route].datas = datas;
+
+		window[this.options.cacheMethod].setItem(
+			`${this.options.keyBrowserStorage}`,
+			JSON.stringify(datasFromCache)
+		);
 	}
 
 	/**
@@ -63,11 +77,6 @@ export default class CacheManager {
 	 * @returns {Object} Datas from the cache
 	 */
 	removeDatasFromCache () {
-		// Try to remove datas in the cache
-		try {
-			window[this.cacheMethod].removeItem(`${this.keyBrowserStorage}`);
-		} catch (error) {
-			console.warn(error);
-		}
+		window[this.options.cacheMethod].removeItem(`${this.options.keyBrowserStorage}`);
 	}
 }

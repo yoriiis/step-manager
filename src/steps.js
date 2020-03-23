@@ -95,7 +95,7 @@ export default class Steps {
 			// Wait a little before trigger the custom event
 			setTimeout(() => {
 				// Dispatch the custom event to the Manager
-				this.options.element.dispatchEvent(new window.CustomEvent('stepNext'));
+				this.options.element.dispatchEvent(new window.CustomEvent('nextStep'));
 			}, 0);
 		}
 	}
@@ -106,7 +106,7 @@ export default class Steps {
 		// Wait a little before trigger the custom event
 		setTimeout(() => {
 			// Dispatch the custom event to the Manager
-			this.options.element.dispatchEvent(new window.CustomEvent('stepPrevious'));
+			this.options.element.dispatchEvent(new window.CustomEvent('previousStep'));
 		}, 0);
 	}
 
