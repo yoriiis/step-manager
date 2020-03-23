@@ -38,7 +38,7 @@ Please include any additional information necessary here. Including the followin
 
 #### Pollsr
 
-What version of the project does this occur with?
+What version of `StepManager` does this occur with?
 
 #### Browsers
 

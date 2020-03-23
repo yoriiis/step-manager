@@ -2,7 +2,7 @@
 
 ![StepManager](https://img.shields.io/badge/step--manager-v1.0.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
 
-StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
+`StepManager` is a library to create **flexible** and **robust** multiple **steps** navigation with hash, **validations**, browser **storage** and **hook** functions.
 
 ## Installation
 
@@ -20,11 +20,11 @@ yarn add --dev step-manager
 
 Online demo is available on [yoriiis.github.io/step-manager](https://yoriiis.github.io/step-manager)
 
-The project includes also examples of StepManager implementation in the directory `./examples/`.
+The project includes also examples of `StepManager` implementation in the directory `./examples/`.
 
 ## How it works
 
-StepManager is composed by the `Manager` to build the core and manage steps and `Steps` to create new step with hook functions.
+`StepManager` is composed by the `Manager` to build the core and manage steps and `Steps` to create new step with hook functions.
 
 ### Steps
 
@@ -90,7 +90,7 @@ The inheritance of the `Steps` class expose following class fields:
 
 `String`
 
-Route for step navigation. StepManager use hash for steps navigation.
+Route for step navigation. `StepManager` use hash for steps navigation.
 
 #### `selector`
 
@@ -220,6 +220,6 @@ manager.destroy();
 
 ## Licence
 
-StepManager and his documentation are licensed under the [MIT License](http://opensource.org/licenses/MIT).
+`StepManager` and his documentation are licensed under the [MIT License](http://opensource.org/licenses/MIT).
 
 Created with ♥ by [@yoriiis](http://github.com/yoriiis).
