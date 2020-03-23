@@ -1,8 +1,18 @@
 {
 	"name": "step-manager",
 	"version": "1.0.0",
-	"description": "",
-	"keywords": [],
+	"description": "StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.",
+	"keywords": [
+		"manager",
+		"step",
+		"tunnel",
+		"navigation",
+		"hash",
+		"browser storage",
+		"sessionstorage",
+		"localstorage",
+		"hook functions"
+	],
 	"homepage": "https://github.com/yoriiis/step-manager",
 	"bugs": "https://github.com/yoriiis/step-manager/issues",
 	"repository": "https://github.com/yoriiis/step-manager.git",
