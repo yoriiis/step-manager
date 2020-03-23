@@ -1,6 +1,7 @@
 import CustomSteps from './custom-steps';
 
 export default class StepPeople extends CustomSteps {
+	// Set public instance fields
 	route = 'people';
 	selector = '.step-people';
 

@@ -1,10 +1,18 @@
 import { Steps } from '../../../dist/step-manager';
 
+/**
+ * Custom steps extends Steps
+ * To prevent code duplication between steps People, Planet and Specie for common codes
+ */
 export default class CustomSteps extends Steps {
+	/**
+	 * Create steps event listeners (common on all specific step)
+	 */
 	addEvents () {
 		// Execute the method of the steps class before this one
 		super.addEvents();
 
+		// Add event listener on all buttons
 		const buttons = [...this.currentStep.querySelectorAll('[data-list-button]')];
 		buttons.forEach(button => {
 			this.onClickOnListButton = e => {
@@ -14,6 +22,11 @@ export default class CustomSteps extends Steps {
 		});
 	}
 
+	/**
+	 * Event listener on button click
+	 *
+	 * @param {Object} e Event listener datas
+	 */
 	clickOnListButton (e) {
 		e.preventDefault();
 		e.currentTarget.classList.toggle('active');
@@ -44,10 +57,12 @@ export default class CustomSteps extends Steps {
 	 * @returns {Object} Local datas of the step
 	 */
 	getDatasFromStep () {
+		// Search all active buttons and extract content
 		const datas = [...document.querySelectorAll('[data-list-button].active')].map(item => ({
 			key: item.getAttribute('data-key'),
 			name: item.innerText
 		}));
+
 		return datas.length ? datas : null;
 	}
 }

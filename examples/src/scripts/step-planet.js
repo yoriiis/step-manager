@@ -1,14 +1,12 @@
 import CustomSteps from './custom-steps';
 
 export default class StepPlanet extends CustomSteps {
+	// Set public instance fields
 	route = 'planet';
 	selector = '.step-planet';
 
 	/**
 	 * Get step template
-	 * Template come from the specific template variable templateStep
-	 *
-	 * @param {Object} datas Datas from getStepDatasToRender
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
@@ -44,7 +42,7 @@ export default class StepPlanet extends CustomSteps {
 	 * @returns {Object} Status of the render of the step
 	 */
 	canTheStepBeDisplayed () {
-		// Request datas from API for the specific class
+		// Request datas from the Manager for the previous steps
 		// Method is exposed by the Manager on each class instance
 		const datas = this.requestDatas('people');
 
