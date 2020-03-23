@@ -4,7 +4,11 @@ import StepSpecie from './step-specie';
 import { Manager } from '../../../dist/step-manager.js';
 import '../styles/demo.css';
 
-const init = async function () {
+/**
+ * Get datas from SWAPI
+ * Store datas in browser storage to improve performance
+ */
+const getDatas = async function () {
 	let datas = window.localStorage.getItem('swapi');
 	if (datas === null) {
 		const apiUrls = [
@@ -19,22 +23,40 @@ const init = async function () {
 			planets,
 			species
 		}));
-
 		window.localStorage.setItem('swapi', JSON.stringify(datas));
 	} else {
 		datas = JSON.parse(datas);
 	}
 
+	return datas;
+};
+
+/**
+ * Initialize the manager with 3 steps (People, Planet and Specie)
+ * On complete action, JSON datas are display in the page and the console
+ */
+const init = async function () {
+	// Get datas from SWAPI
+	const datas = await getDatas();
+
+	// Instanciate the Manager
 	const manager = new Manager({
 		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet, StepSpecie],
 		onComplete: datas => {
-			document.querySelector('#steps').innerHTML = 'Result available in the console!';
 			console.log(datas);
+			document.querySelector('.container').innerHTML = `<pre>${JSON.stringify(
+				datas,
+				null,
+				2
+			)}</pre>`;
 		}
 	});
+
+	// Initialize and build the steps
 	manager.init();
 	document.querySelector('.loader').classList.remove('active');
 };
+
 init();

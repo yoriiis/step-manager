@@ -2,7 +2,7 @@
 
 ![StepManager](https://img.shields.io/badge/step--manager-v1.0.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
 
-StepManager is a library to create strong and robust multiple steps navigation with hash, step validations, browser storage and hook functions.
+StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
 
 ## Installation
 
@@ -34,7 +34,7 @@ First, create the steps container with a selector easily accessible.
 <div id="steps"></div>
 ```
 
-Next, we will create steps. For our example, two steps `People` and `Planet`. All steps needs inheritance from `Steps`.
+Next, we will create steps. For our example, two steps `People` and `Planet`. All steps needs inheritance from `Steps` to access hook functions.
 
 ```javascript
 // step-people.js
@@ -139,7 +139,7 @@ The function allows to extract step datas to save in the browser storage and per
 
 ### Manager
 
-Then, we will create the manager to manage all these steps.
+Now steps are created, we will create the manager to manage all these steps.
 
 ```javascript
 import StepPeople from "step-people";
@@ -176,6 +176,8 @@ JSON datas for all steps.
 
 If steps are build with dynamic contents from an API for example, the manager expose the `datas` fields inside steps with `this.options.datas`.
 
+See SWAPI example in the `./examples/` directory for the full implementation.
+
 #### `cacheMethod`
 
 `String`
@@ -186,13 +188,15 @@ The browser storage method used by the manager (`sessionStorage` or `localStorag
 
 `String`
 
-The storage unique key to store datas in the browser storage.
+The unique storages key to store datas in the browser storage.
 
 #### `onComplete`
 
 `Function`
 
 The function is called when all steps are completed. The function expose as parameter `datas` variable with all steps datas combined in a object.
+
+Feel free to call an API to save datas, redirect the user or whatever.
 
 ## Available methods
 

@@ -15,7 +15,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
+    padding-top: 20px;
 }
 
 .loader {
@@ -47,7 +47,11 @@ body {
     color: var(--yellow);
     font-weight: 600;
     text-align: center;
-    margin: 20px 0;
+    margin: 25px 0 45px;
+}
+
+pre {
+    color: #e83e8c;
 }
 
 .btn {
@@ -58,7 +62,7 @@ body {
 
 .list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     grid-row-gap: 1px;
     grid-column-gap: 1px;
     padding-left: 0;
@@ -108,5 +112,17 @@ body {
         &:last-child {
             margin-left: 10px;
         }
+    }
+}
+
+@media screen and (min-width: 500px) {
+    .list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 750px) {
+    .list {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
