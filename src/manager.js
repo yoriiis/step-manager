@@ -1,7 +1,7 @@
 import Router from './router';
 import CacheManager from './cache-manager';
 
-export default class Tunnel {
+export default class Manager {
 	constructor (options) {
 		const userOptions = options || {};
 		const defaultOptions = {
@@ -9,14 +9,14 @@ export default class Tunnel {
 			datas: {},
 			steps: [],
 			cacheMethod: 'sessionStorage',
-			keyBrowserStorage: 'tunnel',
+			keyBrowserStorage: 'stepManager',
 			onEnded: () => {}
 		};
 
 		// Merge default options with user options
 		this.options = Object.assign(defaultOptions, userOptions);
 
-		this.ended = false;
+		this.isCompleted = false;
 		this.applicationReady = false;
 		this.previousRoute = null;
 		this.stepsOrder = [];
@@ -25,7 +25,7 @@ export default class Tunnel {
 	}
 
 	/**
-	 * Function to instanciate the Tunnel
+	 * Function to instanciate the Manager
 	 */
 	init () {
 		this.addEvents();
@@ -53,7 +53,7 @@ export default class Tunnel {
 	/**
 	 * Analyze steps and store instance as class property
 	 * Expose new methods to each steps (requestOptions, requestDatas)
-	 * to access the Tunnel form steps
+	 * to access the Manager form steps
 	 */
 	analyzeSteps () {
 		// Loop on all available steps
@@ -89,22 +89,18 @@ export default class Tunnel {
 	}
 
 	/**
-	 * Create tunnel event listeners
+	 * Create manager event listeners
 	 * All listeners are created on class properties to facilitate the deletion of events
 	 */
 	addEvents () {
 		// Create custom event to listen step changes from step classes
-		this.eventNextStep = new window.Event('tunnelNext');
-		this.onTriggerTunnelNext = this.triggerTunnelNext.bind(this);
-		this.options.element.addEventListener('tunnelNext', this.onTriggerTunnelNext, false);
+		this.eventNextStep = new window.Event('stepNext');
+		this.onTriggerStepNext = this.triggerStepNext.bind(this);
+		this.options.element.addEventListener('stepNext', this.onTriggerStepNext, false);
 
-		this.eventNextStep = new window.Event('tunnelPrevious');
-		this.onTriggerTunnelPrevious = this.triggerTunnelPrevious.bind(this);
-		this.options.element.addEventListener(
-			'tunnelPrevious',
-			this.onTriggerTunnelPrevious,
-			false
-		);
+		this.eventNextStep = new window.Event('stepPrevious');
+		this.onTriggerStepPrevious = this.triggerStepPrevious.bind(this);
+		this.options.element.addEventListener('stepPrevious', this.onTriggerStepPrevious, false);
 	}
 
 	/**
@@ -112,9 +108,9 @@ export default class Tunnel {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	triggerTunnelNext (e) {
-		// Check if the tunnel isn't ended
-		if (!this.ended) {
+	triggerStepNext (e) {
+		// Check if steps aren't ended
+		if (!this.isCompleted) {
 			// Get the current step id
 			const currentStepId = this.steps[this.Router.currentRoute].id;
 
@@ -126,7 +122,7 @@ export default class Tunnel {
 			// Update cache with datas
 			this.CacheManager.setDatasToCache(this.datas);
 
-			this.Router.triggerNext() || this.tunnelEnded();
+			this.Router.triggerNext() || this.allStepsComplete();
 		}
 	}
 
@@ -135,15 +131,15 @@ export default class Tunnel {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	triggerTunnelPrevious (e) {
+	triggerStepPrevious (e) {
 		this.Router.triggerPrevious();
 	}
 
 	/**
-	 * The tunnel is ended
+	 * All steps are complete
 	 */
-	tunnelEnded () {
-		this.ended = true;
+	allStepsComplete () {
+		this.isCompleted = true;
 
 		// Freeze the display to prevent multiple submit
 		this.options.element.classList.add('loading');
@@ -160,11 +156,11 @@ export default class Tunnel {
 	}
 
 	/**
-	 * Destroy the tunnel (event listeners)
+	 * Destroy the manager (event listeners, router)
 	 */
 	destroy () {
-		this.options.element.removeEventListener('tunnelNext', this.onTriggerTunnelNext);
-		this.options.element.removeEventListener('tunnelPrevious', this.onTriggerTunnelPrevious);
+		this.options.element.removeEventListener('stepNext', this.onTriggerStepNext);
+		this.options.element.removeEventListener('stepPrevious', this.onTriggerStepPrevious);
 		this.Router.destroy();
 	}
 }

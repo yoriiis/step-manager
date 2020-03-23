@@ -1,11 +1,11 @@
 {
-	"name": "tunnel-steps",
+	"name": "step-manager",
 	"version": "1.0.0",
 	"description": "",
 	"keywords": [],
-	"homepage": "https://github.com/yoriiis/tunnel-steps",
-	"bugs": "https://github.com/yoriiis/tunnel-steps/issues",
-	"repository": "https://github.com/yoriiis/tunnel-steps.git",
+	"homepage": "https://github.com/yoriiis/step-manager",
+	"bugs": "https://github.com/yoriiis/step-manager/issues",
+	"repository": "https://github.com/yoriiis/step-manager.git",
 	"author": "Yoriiis aka Joris DANIEL",
 	"main": "",
 	"scripts": {

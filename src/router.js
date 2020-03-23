@@ -34,7 +34,7 @@ export default class Router {
 	}
 
 	/**
-	 * Create tunnel event listeners
+	 * Create router event listeners
 	 * All listeners are created on class properties to facilitate the deletion of events
 	 */
 	addEvents () {
@@ -188,7 +188,7 @@ export default class Router {
 		// Store the current route as the previous route because the route hasn't changed yet
 		this.previousRoute = this.currentRoute;
 
-		// Redirect to the next route or the end of the tunnel
+		// Redirect to the next route or at the end
 		const nextRoute = this.getNextStepRoute(this.currentRoute);
 		if (nextRoute !== 'end') {
 			this.setRoute(nextRoute);
@@ -274,7 +274,7 @@ export default class Router {
 	}
 
 	/**
-	 * Destroy the tunnel (event listeners)
+	 * Destroy the router (event listeners)
 	 */
 	destroy () {
 		window.removeEventListener('hashchange', this.onHashChanged);

@@ -9,16 +9,16 @@ export default class StepPeople extends CustomSteps {
 	 * Get step template
 	 * Template come from the specific template variable templateStep
 	 *
-	 * @param {Object} datas Datas from getStepDatasToRender
-	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate (datas) {
+	getTemplate () {
+		const listPeople = this.options.datas.people.results;
+
 		/* prettier-ignore */
 		return `<div class="step-people">
                     <h2 class="title">Choose your favorites people</h2>
 					<ul class="list">
-						${datas.listPeople.map((people, index) => `
+						${listPeople.map((people, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
 									${people.name}
@@ -28,16 +28,10 @@ export default class StepPeople extends CustomSteps {
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button type="submit" class="btn disabled" data-tunnel-next>Next step</button>
+							<button type="submit" class="btn disabled" data-step-next>Next step</button>
 						</li>
 					</ul>
                 </div>`;
-	}
-
-	getStepDatasToRender () {
-		return {
-			listPeople: this.options.datas.people.results
-		};
 	}
 
 	/**

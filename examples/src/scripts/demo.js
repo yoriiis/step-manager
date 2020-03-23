@@ -1,7 +1,7 @@
 import StepPeople from './step-people';
 import StepPlanet from './step-planet';
 import StepSpecie from './step-specie';
-import { Tunnel } from '../../../dist/tunnel-steps.js';
+import { Manager } from '../../../dist/step-manager.js';
 import '../styles/demo.css';
 
 const init = async function () {
@@ -29,16 +29,16 @@ const init = async function () {
 		datas = JSON.parse(datas);
 	}
 
-	const tunnel = new Tunnel({
-		element: document.querySelector('#tunnel'),
+	const manager = new Manager({
+		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet, StepSpecie],
 		onEnded: datas => {
-			document.querySelector('#tunnel').innerHTML = 'Result available in the console!';
+			document.querySelector('#steps').innerHTML = 'Result available in the console!';
 			console.log(datas);
 		}
 	});
-	tunnel.init();
+	manager.init();
 	document.querySelector('.loader').classList.remove('active');
 };
 init();
