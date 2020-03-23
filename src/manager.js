@@ -1,7 +1,20 @@
 import Router from './router';
 import CacheManager from './cache-manager';
 
+/**
+ * @license MIT
+ * @name StepManager
+ * @version 1.0.0
+ * @author: Yoriiis aka Joris DANIEL <joris.daniel@gmail.com>
+ * @description:
+ * {@link https://github.com/yoriiis/step-manager}
+ * @copyright 2020 Joris DANIEL
+ **/
+
 export default class Manager {
+	/**
+	 * @param {options}
+	 */
 	constructor (options) {
 		const userOptions = options || {};
 		const defaultOptions = {
@@ -10,7 +23,7 @@ export default class Manager {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onEnded: () => {}
+			onComplete: () => {}
 		};
 
 		// Merge default options with user options
@@ -20,13 +33,12 @@ export default class Manager {
 	}
 
 	/**
-	 * Function to instanciate the Manager
+	 * Function to initialize the Manager
 	 */
 	init () {
 		this.addEvents();
 
 		const results = this.analyzeSteps();
-		// console.log(results);
 		this.steps = results.steps;
 
 		this.CacheManager = new CacheManager({
@@ -41,14 +53,16 @@ export default class Manager {
 			getDatasFromCache: (...filters) => this.CacheManager.getDatasFromCache(filters)
 		});
 
-		// Initialize the application router
+		// Initialize the router
 		this.Router.init();
 	}
 
 	/**
-	 * Analyze steps and store instance as class property
+	 * Analyze steps and store instance
 	 * Expose new methods to each steps (requestOptions, requestDatas)
 	 * to access the Manager form steps
+	 *
+	 * @returns {Object} Object with steps instance, steps order and default route
 	 */
 	analyzeSteps () {
 		const steps = {};
@@ -63,7 +77,7 @@ export default class Manager {
 			// Get the step route
 			const currentRoute = currentStep.route;
 
-			// Expose new methods and attributes on each steps
+			// Expose new functions on each steps
 			currentStep.requestOptions = () => this.options;
 			currentStep.requestDatas = (...filters) => this.CacheManager.getDatasFromCache(filters);
 
@@ -107,7 +121,7 @@ export default class Manager {
 	 * @param {Object} e Event listener datas
 	 */
 	triggerNextStep (e) {
-		// Check if steps aren't ended
+		// Check if steps are completed
 		if (!this.isCompleted) {
 			// Get datas from the current step
 			const stepDatas = this.steps[this.Router.currentRoute].getDatasFromStep();
@@ -118,6 +132,8 @@ export default class Manager {
 				datas: stepDatas
 			});
 
+			// Trigger the next route if available
+			// Else, all steps are completed
 			this.Router.triggerNext() || this.allStepsComplete();
 		}
 	}
@@ -144,10 +160,12 @@ export default class Manager {
 		this.Router.setRoute('');
 		this.destroy();
 
-		if (typeof this.options.onEnded === 'function') {
-			this.options.onEnded(this.CacheManager.getDatasFromCache());
+		// Execute the user callback function if available
+		if (typeof this.options.onComplete === 'function') {
+			this.options.onComplete(this.CacheManager.getDatasFromCache());
 		}
 
+		// Clean the cache at the end
 		this.CacheManager.removeDatasFromCache();
 	}
 

@@ -3,7 +3,6 @@ import CustomSteps from './custom-steps';
 export default class StepPlanet extends CustomSteps {
 	route = 'planet';
 	selector = '.step-planet';
-	fallbackRoute = 'people';
 
 	/**
 	 * Get step template
@@ -51,8 +50,7 @@ export default class StepPlanet extends CustomSteps {
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: !!(datas && datas.people && datas.people.datas),
-			fallbackRoute: this.fallbackRoute
+			canBeDisplayed: !!(datas && datas.people && datas.people.datas)
 		};
 	}
 }
