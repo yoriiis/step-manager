@@ -1,13 +1,19 @@
 export default class Router {
-	constructor ({ defaultRoute, stepsOrder, steps, element, getDatasFromCache = () => {} } = {}) {
-		this.defaultRoute = defaultRoute;
-		this.stepsOrder = stepsOrder;
-		this.steps = steps;
-		this.element = element;
-		this.getDatasFromCache = getDatasFromCache;
+	constructor (options) {
+		const userOptions = options || {};
+		const defaultOptions = {
+			defaultRoute: null,
+			stepsOrder: [],
+			steps: {},
+			getDatasFromCache: () => {}
+		};
+
+		// Merge default options with user options
+		this.options = Object.assign(defaultOptions, userOptions);
 
 		this.reverseNavigation = false;
 		this.stepCreated = false;
+		this.applicationReady = false;
 		this.stepRedirected = {};
 	}
 
@@ -22,7 +28,7 @@ export default class Router {
 
 		// Declare the default route
 		// If route exist, keep it, else set it to the default route
-		this.currentRoute = route === '' ? this.defaultRoute : route;
+		this.currentRoute = route === '' ? this.options.defaultRoute : route;
 
 		// Init the router with the default route
 		if (route === '') {
@@ -62,52 +68,60 @@ export default class Router {
 
 		// The step can be dislayed
 		if (datas.canBeDisplayed) {
-			// Event listener exist when user click on next step button
-			// Event listener doesn't exist when setRoute is called manually
-			if (e) {
-				// Get the previous route
-				this.previousRoute = this.stepRedirected.redirect
-					? this.stepRedirected.previousRoute
-					: this.getPreviousRoute(e);
+			this.stepCanBeDisplayed(e);
+		} else {
+			this.stepCantBeDisplayed(e, datas.fallbackRoute);
+		}
+	}
 
-				// Check if previous step need to be destroyed
-				// Prevent destruction when previousRoute does not exist or when user is redirected
-				if (this.previousRoute) {
-					// Destroy the previous step
-					this.destroyStep(this.previousRoute);
+	stepCanBeDisplayed (e) {
+		// Event listener exist when user click on next step button
+		// Event listener doesn't exist when setRoute is called manually
+		if (e) {
+			// Get the previous route
+			this.previousRoute = this.stepRedirected.redirect
+				? this.stepRedirected.previousRoute
+				: this.getPreviousRoute(e);
 
-					// Create the new step on destruction callback
-					this.createStep({
-						route: this.currentRoute
-					});
+			// Check if previous step need to be destroyed
+			// Prevent destruction when previousRoute does not exist or when user is redirected
+			if (this.previousRoute) {
+				// Destroy the previous step
+				this.destroyStep(this.previousRoute);
 
-					this.stepCreated = true;
-				}
-			}
-
-			// If destroy method was not called, create the step now
-			if (!this.stepCreated) {
+				// Create the new step on destruction callback
 				this.createStep({
 					route: this.currentRoute
 				});
-			}
 
-			// Reset the redirect marker
-			if (this.stepRedirected.redirect) {
-				this.stepRedirected.redirect = false;
+				this.stepCreated = true;
 			}
-		} else {
-			// The step can't be displayed, redirect user to the previous route or the fallback route
-			this.stepRedirected = {
-				redirect: true,
-				previousRoute: this.getPreviousRoute(e)
-			};
-			this.previousRoute = null;
+		}
 
-			// If the step has a fallback route, use it
-			if (datas.fallbackRoute) {
-				this.setRoute(datas.fallbackRoute);
-			}
+		// If destroy method was not called, create the step now
+		if (!this.stepCreated) {
+			this.createStep({
+				route: this.currentRoute
+			});
+		}
+
+		// Reset the redirect marker
+		if (this.stepRedirected.redirect) {
+			this.stepRedirected.redirect = false;
+		}
+	}
+
+	stepCantBeDisplayed (e, fallbackRoute) {
+		// The step can't be displayed, redirect user to the previous route or the fallback route
+		this.stepRedirected = {
+			redirect: true,
+			previousRoute: this.getPreviousRoute(e)
+		};
+		this.previousRoute = null;
+
+		// If the step has a fallback route, use it
+		if (fallbackRoute) {
+			this.setRoute(fallbackRoute);
 		}
 	}
 
@@ -121,19 +135,19 @@ export default class Router {
 	 */
 	checkIfTheStepCanBeDisplay ({ route, event }) {
 		// Check the validity of the route
-		if (this.steps[route]) {
+		if (this.options.steps[route]) {
 			// Call the verification method of the step
 			// The step itself knows if it can be rendered
-			const datas = this.steps[route].canTheStepBeDisplayed();
+			const datas = this.options.steps[route].canTheStepBeDisplayed();
 			return datas;
 		} else {
-			let fallbackRoute = this.defaultRoute;
+			let fallbackRoute = this.options.defaultRoute;
 
 			// Get fallback route from previous route if exist
 			const previousRoute = this.getPreviousRoute(event);
 			if (previousRoute) {
-				if (this.steps[previousRoute].fallbackRoute) {
-					fallbackRoute = this.steps[previousRoute].fallbackRoute;
+				if (this.options.steps[previousRoute].fallbackRoute) {
+					fallbackRoute = this.options.steps[previousRoute].fallbackRoute;
 				}
 			}
 
@@ -151,18 +165,13 @@ export default class Router {
 	 * @param {String} route Route of the step
 	 */
 	createStep ({ route }) {
-		// Get the unique identifier of the step
-		const currentStepId = this.steps[route].id;
-
 		// Get datas from cache before render the step
-		const stepDatas = this.getDatasFromCache([currentStepId]);
+		const stepDatas = this.options.getDatasFromCache([route]);
 
 		// Call the render method of the step
-		this.steps[route].render({
-			datas: stepDatas ? stepDatas[currentStepId].datas : null
+		this.options.steps[route].render({
+			datas: stepDatas ? stepDatas[route].datas : null
 		});
-
-		this.element.classList.add('active');
 
 		// Prevent step created before application ready
 		if (!this.applicationReady) {
@@ -176,10 +185,8 @@ export default class Router {
 	 * @param {String} route Route of the step
 	 */
 	destroyStep (route) {
-		this.element.classList.remove('active');
-
 		// Call the destroy method of the step
-		this.steps[route].destroy();
+		this.options.steps[route].destroy();
 	}
 
 	triggerNext () {
@@ -227,7 +234,9 @@ export default class Router {
 	 * @returns {String} Next route or "end"
 	 */
 	getPreviousStepRoute (route) {
-		const nextStep = this.steps[this.stepsOrder[this.getIndexFromRoute(route) - 1]];
+		const nextStep = this.options.steps[
+			this.options.stepsOrder[this.getIndexFromRoute(route) - 1]
+		];
 		return nextStep ? nextStep.route : 'end';
 	}
 
@@ -240,7 +249,9 @@ export default class Router {
 	 * @returns {String} Next route or "end"
 	 */
 	getNextStepRoute (route) {
-		const nextStep = this.steps[this.stepsOrder[this.getIndexFromRoute(route) + 1]];
+		const nextStep = this.options.steps[
+			this.options.stepsOrder[this.getIndexFromRoute(route) + 1]
+		];
 		return nextStep ? nextStep.route : 'end';
 	}
 
@@ -250,7 +261,7 @@ export default class Router {
 	 * @returns {Integer} Index of the route
 	 */
 	getIndexFromRoute (route) {
-		return this.stepsOrder.findIndex(currentRoute => {
+		return this.options.stepsOrder.findIndex(currentRoute => {
 			return currentRoute === route;
 		});
 	}

@@ -1,7 +1,6 @@
 import CustomSteps from './custom-steps';
 
 export default class StepPlanet extends CustomSteps {
-	id = 'step-planet';
 	route = 'planet';
 	selector = '.step-planet';
 	fallbackRoute = 'people';
@@ -48,11 +47,11 @@ export default class StepPlanet extends CustomSteps {
 	canTheStepBeDisplayed () {
 		// Request datas from API for the specific class
 		// Method is exposed by the Manager on each class instance
-		const datas = this.requestDatas('step-people');
+		const datas = this.requestDatas('people');
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: !!(datas && datas[0] && datas[0].datas),
+			canBeDisplayed: !!(datas && datas.people && datas.people.datas),
 			fallbackRoute: this.fallbackRoute
 		};
 	}

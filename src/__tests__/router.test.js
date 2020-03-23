@@ -7,7 +7,6 @@ import Router from '../router';
 let router;
 
 class StepPeople extends Steps {
-	id = 'step-people';
 	route = 'people';
 	selector = '.step-people';
 	canTheStepBeDisplayed () {
@@ -27,7 +26,6 @@ class StepPeople extends Steps {
 }
 
 class StepPlanet extends Steps {
-	id = 'step-planet';
 	route = 'planet';
 	selector = '.step-planet';
 	canTheStepBeDisplayed () {
@@ -54,7 +52,6 @@ const getOptions = () => {
 			people: new StepPeople(),
 			planet: new StepPlanet()
 		},
-		element: document.querySelector('#steps'),
 		getDatasFromCache: (...filters) => new CacheManager().getDatasFromCache(filters)
 	};
 };
@@ -77,12 +74,25 @@ afterEach(() => {
 
 describe('Router function', () => {
 	it('Should initialize the constructor', () => {
-		expect(router.defaultRoute).toEqual('people');
-		expect(router.stepsOrder).toEqual(['people', 'planet']);
-		expect(router.element).toEqual(document.querySelector('#steps'));
-		expect(router.steps).toEqual({
-			people: new StepPeople(),
-			planet: new StepPlanet()
+		expect(router.options).toEqual({
+			defaultRoute: 'people',
+			stepsOrder: ['people', 'planet'],
+			steps: {
+				people: new StepPeople(),
+				planet: new StepPlanet()
+			},
+			getDatasFromCache: expect.any(Function)
+		});
+	});
+
+	it('Should initialize the constructor without options', () => {
+		const instance = new Router();
+
+		expect(instance.options).toEqual({
+			defaultRoute: null,
+			stepsOrder: [],
+			steps: {},
+			getDatasFromCache: expect.any(Function)
 		});
 	});
 

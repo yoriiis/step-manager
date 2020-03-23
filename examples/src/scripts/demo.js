@@ -20,11 +20,7 @@ const init = async function () {
 			species
 		}));
 
-		try {
-			window.localStorage.setItem('swapi', JSON.stringify(datas));
-		} catch (error) {
-			console.warn(error);
-		}
+		window.localStorage.setItem('swapi', JSON.stringify(datas));
 	} else {
 		datas = JSON.parse(datas);
 	}

@@ -10,7 +10,6 @@ import { Manager } from '../index.js';
 let manager;
 
 class StepPeople extends Steps {
-	id = 'step-people';
 	route = 'people';
 	selector = '.step-people';
 	canTheStepBeDisplayed () {
@@ -30,7 +29,6 @@ class StepPeople extends Steps {
 }
 
 class StepPlanet extends Steps {
-	id = 'step-planet';
 	route = 'planet';
 	selector = '.step-planet';
 	canTheStepBeDisplayed () {
@@ -100,32 +98,19 @@ describe('Manager function', () => {
 
 	it('Should call the init function', () => {
 		manager.addEvents = jest.fn();
-		manager.analyzeSteps = jest.fn();
 
 		manager.init();
 
 		expect(manager.CacheManager).toBeInstanceOf(CacheManager);
 		expect(manager.Router).toBeInstanceOf(Router);
 		expect(manager.addEvents).toHaveBeenCalled();
-		expect(manager.analyzeSteps).toHaveBeenCalled();
 	});
 
 	it('Should analyze steps', () => {
-		manager.init();
-		manager.analyzeSteps();
+		const results = manager.analyzeSteps();
 
-		expect(manager.datas).toEqual({
-			'step-people': {
-				datas: null,
-				index: 0,
-				route: 'people'
-			},
-			'step-planet': {
-				datas: null,
-				index: 1,
-				route: 'planet'
-			}
-		});
+		expect(results.steps.people).toBeInstanceOf(StepPeople);
+		expect(results.steps.planet).toBeInstanceOf(StepPlanet);
 	});
 
 	it('Should add event listeners', () => {
@@ -135,13 +120,13 @@ describe('Manager function', () => {
 		manager.addEvents();
 
 		expect(manager.options.element.addEventListener).toHaveBeenCalledWith(
-			'stepNext',
-			manager.onTriggerStepNext,
+			'nextStep',
+			manager.ontriggerNextStep,
 			false
 		);
 		expect(manager.options.element.addEventListener).toHaveBeenCalledWith(
-			'stepPrevious',
-			manager.onTriggerStepPrevious,
+			'previousStep',
+			manager.ontriggerPreviousStep,
 			false
 		);
 	});
@@ -149,7 +134,7 @@ describe('Manager function', () => {
 	it('Should trigger step next', () => {
 		manager.init();
 		manager.Router.triggerNext = jest.fn();
-		manager.triggerStepNext();
+		manager.triggerNextStep();
 
 		expect(manager.Router.triggerNext).toHaveBeenCalled();
 	});
@@ -158,7 +143,7 @@ describe('Manager function', () => {
 		manager.init();
 		manager.isCompleted = true;
 		manager.Router.triggerNext = jest.fn();
-		manager.triggerStepNext();
+		manager.triggerNextStep();
 
 		expect(manager.Router.triggerNext).not.toHaveBeenCalled();
 	});
@@ -174,33 +159,25 @@ describe('Manager function', () => {
 	it('Should trigger step previous', () => {
 		manager.init();
 		manager.Router.triggerPrevious = jest.fn();
-		manager.triggerStepPrevious();
+		manager.triggerPreviousStep();
 
 		expect(manager.Router.triggerPrevious).toHaveBeenCalled();
 	});
 
 	it('Should call the requestDatas', () => {
 		manager.init();
-		manager.datas = {
-			'step-people': {
-				datas: true,
-				index: 0,
-				route: 'people'
-			},
-			'step-planet': {
-				datas: null,
-				index: 1,
-				route: 'planet'
+		const datas = {
+			people: {
+				datas: [
+					{ key: '5', name: 'Owen Lars' },
+					{ key: '6', name: 'Beru Whitesun lars' }
+				]
 			}
 		};
-		const results = manager.steps.people.requestDatas('step-people');
+		window.sessionStorage.setItem('stepManager', JSON.stringify(datas));
+		const steps = manager.analyzeSteps().steps;
+		const results = steps.people.requestDatas('people');
 
-		expect(results).toEqual([
-			{
-				datas: true,
-				index: 0,
-				route: 'people'
-			}
-		]);
+		expect(results).toEqual(datas);
 	});
 });

@@ -1,7 +1,6 @@
 import CustomSteps from './custom-steps';
 
 export default class StepSpecie extends CustomSteps {
-	id = 'step-specie';
 	route = 'specie';
 	selector = '.step-specie';
 	fallbackRoute = 'planet';
@@ -48,9 +47,9 @@ export default class StepSpecie extends CustomSteps {
 	canTheStepBeDisplayed () {
 		// Request datas from cache for the specific class
 		// Method is exposed by the Manager on each class instance
-		const datas = this.requestDatas('step-people', 'step-planet');
-		const isStepPeopleValid = datas && datas[0] && datas[0].datas;
-		const isStepPlanetValid = datas && datas[1] && datas[1].datas;
+		const datas = this.requestDatas('people', 'planet');
+		const isStepPeopleValid = datas && datas.people && datas.people.datas;
+		const isStepPlanetValid = datas && datas.planet && datas.planet.datas;
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
