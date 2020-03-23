@@ -1,4 +1,7 @@
 export default class CacheManager {
+	/**
+	 * @param {options}
+	 */
 	constructor (options) {
 		const userOptions = options || {};
 		const defaultOptions = {
@@ -50,7 +53,8 @@ export default class CacheManager {
 	/**
 	 * Set step datas to the cache
 	 *
-	 * @returns {Boolean} Success of all data stored in the cache
+	 * @param {String} route Current route
+	 * @param {Object} datas Datas of the step
 	 */
 	setDatasToCache ({ route, datas }) {
 		let datasFromCache = this.getDatasFromCache();
@@ -71,10 +75,8 @@ export default class CacheManager {
 	}
 
 	/**
-	 * Remove  datas from the cache
-	 * Used only when all steps are ended
-	 *
-	 * @returns {Object} Datas from the cache
+	 * Remove datas from the cache
+	 * Used only when all steps are completed
 	 */
 	removeDatasFromCache () {
 		window[this.options.cacheMethod].removeItem(`${this.options.keyBrowserStorage}`);

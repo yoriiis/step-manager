@@ -2,7 +2,7 @@
 
 ![StepManager](https://img.shields.io/badge/step--manager-v1.0.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
 
-StepManager is a library to create multiple steps with navigation, validation and saving datas with hook functions.
+StepManager is a library to create strong and robust multiple steps navigation with hash, step validations, browser storage and hook functions.
 
 ## Installation
 
@@ -22,9 +22,9 @@ Online demo is available on [yoriiis.github.io/step-manager](https://yoriiis.git
 
 The project includes also examples of StepManager implementation in the directory `./examples/`.
 
-## Basic usage
+## How it works
 
-StepManager is compose by `Manager` to build the core to manage steps and `Steps` to create new step with hook functions.
+StepManager is composed by the `Manager` to build the core and manage steps and `Steps` to create new step with hook functions.
 
 ### Steps
 
@@ -34,29 +34,27 @@ First, create the steps container with a selector easily accessible.
 <div id="steps"></div>
 ```
 
-Next, we will create steps. For our example, two steps `People` and `Planet`.
+Next, we will create steps. For our example, two steps `People` and `Planet`. All steps needs inheritance from `Steps`.
 
 ```javascript
 // step-people.js
 import { Steps } from "step-manager";
 
 export default class StepPeople extends Steps {
-    id = "step-people";
     route = "people";
     selector = ".step-people";
 
-    canTheStepBeDisplayed() {
+    canTheStepBeDisplayed () {
         return {
-            canBeDisplayed: true,
-            fallbackRoute: null
+            canBeDisplayed: true
         };
     }
 
-    getTemplate() {
+    getTemplate () {
         return '<div class="step-people"></div>';
     }
 
-    getDatasFromStep() {
+    getDatasFromStep () {
         return {};
     }
 }
@@ -67,48 +65,77 @@ export default class StepPeople extends Steps {
 import { Steps } from "step-manager";
 
 export default class StepPlanet extends Steps {
-    id = "step-planet";
     route = "planet";
     selector = ".step-planet";
 
-    canTheStepBeDisplayed() {
+    canTheStepBeDisplayed () {
         return {
-            canBeDisplayed: true,
-            fallbackRoute: null
+            canBeDisplayed: true
         };
     }
 
-    getTemplate() {
+    getTemplate () {
         return '<div class="step-planet"></div>';
     }
 
-    getDatasFromStep() {
+    getDatasFromStep () {
         return {};
     }
 }
 ```
 
-#### Class fields
+The inheritance of the `Steps` class expose following class fields:
 
-The inheritance of the `Steps` class expose following fields:
+#### `route`
+
+`String`
+
+Route for step navigation. StepManager use hash for steps navigation.
+
+#### `selector`
+
+`String`
+
+The CSS selector use in the template to identify the step.
+
+#### `optionalStep`
+
+`Boolean`
+
+Declare if the step is optional and can be submit without validation. The parameter is a public instance fields like `route` or `selector`.
+
+#### `canTheStepBeDisplayed`
+
+`Function`
+
+The function for display conditions of the step. The function need to return an object with the following keys:
 
 ```javascript
 {
-    id: '',
-    route: '',
-    selector: '',
-    canTheStepBeDisplayed () {},
-    getTemplate () {},
-    getDatasFromStep () {}
+    canBeDisplayed: true // Boolean
 }
 ```
 
-* `id` - {String} - Unique identifier of the step
-* `route` - {String} - Route for step navigation (hash)
-* `selector` - {String} - CSS selector to identify the step (match in the template)
-* `canTheStepBeDisplayed` - {Function} - Function to add display condition for the step
-* `getTemplate` - {Function} - Function to return the template
-* `getDatasFromStep` - {Function} - Function to extract step datas to save
+If the step can't be displayed, the manager will redirect to the first route. The optional key `fallbackRoute` allows to override this behavior.
+
+```javascript
+{
+    canBeDisplayed: true, // Boolean
+    fallbackRoute: 'people' // String
+}
+```
+
+#### `getTemplate`
+
+`Function`
+
+The function return the template of the step. Step can access the manager options with `this.options`.
+
+#### `getDatasFromStep`
+
+`Function`
+
+The function allows to extract step datas to save in the browser storage and persist during the navigation.
 
 ### Manager
 
@@ -123,36 +150,49 @@ const manager = new Manager({
     element: document.querySelector("#steps"),
     datas: {},
     steps: [StepPeople, StepPlanet],
-    onEnded: datas => {
-        // All steps are ended
-        // Datas are available with the `datas` variable
+    onComplete: datas => {
+        // All steps are completed
+        // All steps datas are available with the `datas` parameter
         // Call the function to save datas as you want
     }
 });
+
 manager.init();
 ```
 
-#### Options
+Manager fields are explained below.
 
-You can pass configuration options to `Manager`. Example below show all default values.
+#### `element`
 
-```javascript
-{
-    element: null,
-    datas: {},
-    steps: [],
-    cacheMethod: 'sessionStorage',
-    keyBrowserStorage: 'stepManager',
-    onAction: () => {}
-}
-```
+`HTMLElement`
 
-* `element` - {HTMLElement} - DOM element reference
-* `datas` - {Object} - JSON datas for the Manager
-* `steps` - {Array} - Array of step instances
-* `cacheMethod` - {String} - Browser storage method
-* `keyBrowserStorage` - {String} - Browser storage key
-* `onAction` - {Function} - Function executes on all steps ended
+The HTML element where the manager will build the steps.
+
+#### `datas`
+
+`Object`
+
+JSON datas for all steps.
+
+If steps are build with dynamic contents from an API for example, the manager expose the `datas` fields inside steps with `this.options.datas`.
+
+#### `cacheMethod`
+
+`String`
+
+The browser storage method used by the manager (`sessionStorage` or `localStorage`).
+
+#### `keyBrowserStorage`
+
+`String`
+
+The storage unique key to store datas in the browser storage.
+
+#### `onComplete`
+
+`Function`
+
+The function is called when all steps are completed. The function expose as parameter `datas` variable with all steps datas combined in a object.
 
 ## Available methods
 
@@ -160,7 +200,7 @@ The `Manager` exposes following functions.
 
 ### Init
 
-The `init()` function initialize the manager and build steps
+The `init()` function initialize the manager and build steps.
 
 ```javascript
 manager.init();

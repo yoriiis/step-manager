@@ -52,7 +52,7 @@ const getOptions = () => {
 		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet],
-		onEnded: datas => true
+		onComplete: datas => true
 	};
 };
 
@@ -79,7 +79,7 @@ describe('Manager function', () => {
 			steps: [StepPeople, StepPlanet],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onEnded: expect.any(Function)
+			onComplete: expect.any(Function)
 		});
 	});
 
@@ -92,7 +92,7 @@ describe('Manager function', () => {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onEnded: expect.any(Function)
+			onComplete: expect.any(Function)
 		});
 	});
 
@@ -148,12 +148,12 @@ describe('Manager function', () => {
 		expect(manager.Router.triggerNext).not.toHaveBeenCalled();
 	});
 
-	it('Should call the onEnded function', () => {
+	it('Should call the onComplete function', () => {
 		manager.init();
-		manager.options.onEnded = jest.fn();
+		manager.options.onComplete = jest.fn();
 		manager.allStepsComplete();
 
-		expect(manager.options.onEnded).toHaveBeenCalled();
+		expect(manager.options.onComplete).toHaveBeenCalled();
 	});
 
 	it('Should trigger step previous', () => {

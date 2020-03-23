@@ -29,7 +29,7 @@ const init = async function () {
 		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet, StepSpecie],
-		onEnded: datas => {
+		onComplete: datas => {
 			document.querySelector('#steps').innerHTML = 'Result available in the console!';
 			console.log(datas);
 		}

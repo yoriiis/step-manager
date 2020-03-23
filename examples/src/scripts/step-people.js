@@ -41,8 +41,7 @@ export default class StepPeople extends CustomSteps {
 	canTheStepBeDisplayed () {
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: true,
-			fallbackRoute: this.fallbackRoute
+			canBeDisplayed: true
 		};
 	}
 }

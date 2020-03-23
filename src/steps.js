@@ -1,4 +1,5 @@
 export default class Steps {
+	// Set public instance fields
 	fallbackRoute = null;
 	optionalStep = false;
 
@@ -92,22 +93,21 @@ export default class Steps {
 
 		// Click is authorized when the step is ready to submit or if the step is optional
 		if (this.stepIsReadyToSubmit || this.optionalStep) {
-			// Wait a little before trigger the custom event
-			setTimeout(() => {
-				// Dispatch the custom event to the Manager
-				this.options.element.dispatchEvent(new window.CustomEvent('nextStep'));
-			}, 0);
+			// Dispatch the custom event to the Manager
+			this.options.element.dispatchEvent(new window.CustomEvent('nextStep'));
 		}
 	}
 
+	/**
+	 * Event listener to click on the previous step button
+	 *
+	 * @param {Object} e Event listener datas
+	 */
 	clickToPreviousStep (e) {
 		e.preventDefault();
 
-		// Wait a little before trigger the custom event
-		setTimeout(() => {
-			// Dispatch the custom event to the Manager
-			this.options.element.dispatchEvent(new window.CustomEvent('previousStep'));
-		}, 0);
+		// Dispatch the custom event to the Manager
+		this.options.element.dispatchEvent(new window.CustomEvent('previousStep'));
 	}
 
 	checkIfStepIsReadyToSubmit () {

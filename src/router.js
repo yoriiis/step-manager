@@ -1,4 +1,7 @@
 export default class Router {
+	/**
+	 * @param {options}
+	 */
 	constructor (options) {
 		const userOptions = options || {};
 		const defaultOptions = {
@@ -18,7 +21,7 @@ export default class Router {
 	}
 
 	/**
-	 * Initialize the main router of the application
+	 * Initialize the router
 	 */
 	init () {
 		this.addEvents();
@@ -50,7 +53,7 @@ export default class Router {
 	}
 
 	/**
-	 * Main hash changed event of the application
+	 * On hash changed event listener
 	 *
 	 * @param {Object} e Event listener datas
 	 */
@@ -74,6 +77,11 @@ export default class Router {
 		}
 	}
 
+	/**
+	 * The step can be displayed
+	 *
+	 * @param {Object} e Event listener datas
+	 */
 	stepCanBeDisplayed (e) {
 		// Event listener exist when user click on next step button
 		// Event listener doesn't exist when setRoute is called manually
@@ -111,8 +119,14 @@ export default class Router {
 		}
 	}
 
+	/**
+	 * The step can't be displayed
+	 * Redirect user to the previous route or the fallback route
+	 *
+	 * @param {Object} e Event listener datas
+	 * @param {String} fallbackRoute The fallback route of the step
+	 */
 	stepCantBeDisplayed (e, fallbackRoute) {
-		// The step can't be displayed, redirect user to the previous route or the fallback route
 		this.stepRedirected = {
 			redirect: true,
 			previousRoute: this.getPreviousRoute(e)
@@ -122,6 +136,8 @@ export default class Router {
 		// If the step has a fallback route, use it
 		if (fallbackRoute) {
 			this.setRoute(fallbackRoute);
+		} else {
+			this.setRoute(this.options.defaultRoute);
 		}
 	}
 
@@ -131,7 +147,7 @@ export default class Router {
 	 * @param {String} route Route hash
 	 * @param {Object} event Event listener datas
 	 *
-	 * @returns {Object} Status of the render of the step
+	 * @returns {Object} Status of the step render
 	 */
 	checkIfTheStepCanBeDisplay ({ route, event }) {
 		// Check the validity of the route
@@ -189,6 +205,11 @@ export default class Router {
 		this.options.steps[route].destroy();
 	}
 
+	/**
+	 * Trigger next step navigation
+	 *
+	 * @returns {Boolean} Is the next step exist?
+	 */
 	triggerNext () {
 		this.reverseNavigation = false;
 
@@ -205,11 +226,15 @@ export default class Router {
 		}
 	}
 
+	/**
+	 * Trigger previous step navigation
+	 */
 	triggerPrevious () {
 		this.reverseNavigation = true;
 
 		// Store the current route as the previous route because the route hasn't changed yet
 		this.previousRoute = this.currentRoute;
+
 		const nextRoute = this.getPreviousStepRoute(this.previousRoute);
 		this.setRoute(nextRoute);
 	}
@@ -219,7 +244,7 @@ export default class Router {
 	 *
 	 * @param {Object} event Event listener datas
 	 *
-	 * @returns {String} returnValue Previous route
+	 * @returns {String} Previous route
 	 */
 	getPreviousRoute (e) {
 		return e && e.oldURL ? e.oldURL.split('#')[1] : null;
