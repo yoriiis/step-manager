@@ -58,7 +58,7 @@ export default class CacheManager {
 
 	/**
 	 * Remove  datas from the cache
-	 * Used only when the tunnel is ended
+	 * Used only when all steps are ended
 	 *
 	 * @returns {Object} Datas from the cache
 	 */

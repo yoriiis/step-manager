@@ -1,4 +1,4 @@
-import { Steps } from '../../../dist/tunnel-steps';
+import { Steps } from '../../../dist/step-manager';
 
 export default class CustomSteps extends Steps {
 	addEvents () {

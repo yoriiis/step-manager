@@ -10,13 +10,9 @@ export default class Steps {
 	render ({ datas }) {
 		this.options = this.requestOptions();
 
-		// Get step data to render from the specific class
-		// Get the template from the specific class and send it datas
 		// Insert the generated HTML for the step
-		this.options.element.insertAdjacentHTML(
-			'beforeend',
-			this.getTemplate(this.getStepDatasToRender())
-		);
+		// Get the template from the specific class and send it datas
+		this.options.element.insertAdjacentHTML('beforeend', this.getTemplate());
 
 		// The DOM is up to date, trigger the after render method with datas from the cache
 		this.afterRender({
@@ -62,13 +58,13 @@ export default class Steps {
 			const target = e.target;
 			if (
 				target.nodeName.toLowerCase() === 'button' &&
-				target.hasAttribute('data-tunnel-previous')
+				target.hasAttribute('data-step-previous')
 			) {
 				// Click on the next step button
 				this.clickToPreviousStep(e);
 			} else if (
 				target.nodeName.toLowerCase() === 'button' &&
-				target.hasAttribute('data-tunnel-next')
+				target.hasAttribute('data-step-next')
 			) {
 				// Click on the next step button
 				this.clickToNextStep(e);
@@ -98,8 +94,8 @@ export default class Steps {
 		if (this.stepIsReadyToSubmit || this.optionalStep) {
 			// Wait a little before trigger the custom event
 			setTimeout(() => {
-				// Dispatch the custom event to the Tunnel
-				this.options.element.dispatchEvent(new window.CustomEvent('tunnelNext'));
+				// Dispatch the custom event to the Manager
+				this.options.element.dispatchEvent(new window.CustomEvent('stepNext'));
 			}, 0);
 		}
 	}
@@ -109,8 +105,8 @@ export default class Steps {
 
 		// Wait a little before trigger the custom event
 		setTimeout(() => {
-			// Dispatch the custom event to the Tunnel
-			this.options.element.dispatchEvent(new window.CustomEvent('tunnelPrevious'));
+			// Dispatch the custom event to the Manager
+			this.options.element.dispatchEvent(new window.CustomEvent('stepPrevious'));
 		}, 0);
 	}
 
@@ -126,7 +122,7 @@ export default class Steps {
 	 * Update the submit button
 	 */
 	updateButtonToValidateStep () {
-		const button = this.currentStep.querySelector('[data-tunnel-next]');
+		const button = this.currentStep.querySelector('[data-step-next]');
 
 		if (this.stepIsReadyToSubmit || this.optionalStep) {
 			button.classList.remove('disabled');

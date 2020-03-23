@@ -14,12 +14,14 @@ export default class StepPlanet extends CustomSteps {
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate (datas) {
+	getTemplate () {
+		const listPlanet = this.options.datas.planets.results;
+
 		/* prettier-ignore */
 		return `<div class="step-planet">
                     <h2 class="title">Choose your favorites planet</h2>
 					<ul class="list">
-						${datas.listPlanet.map((planet, index) => `
+						${listPlanet.map((planet, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
 									${planet.name}
@@ -29,19 +31,13 @@ export default class StepPlanet extends CustomSteps {
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button class="btn" data-tunnel-previous>Previous step</button>
+							<button class="btn" data-step-previous>Previous step</button>
 						</li>
 						<li class="nav-item">
-							<button type="submit" class="btn btn disabled" data-tunnel-next>Next step</button>
+							<button type="submit" class="btn btn disabled" data-step-next>Next step</button>
 						</li>
 					</ul>
                 </div>`;
-	}
-
-	getStepDatasToRender () {
-		return {
-			listPlanet: this.options.datas.planets.results
-		};
 	}
 
 	/**
@@ -51,7 +47,7 @@ export default class StepPlanet extends CustomSteps {
 	 */
 	canTheStepBeDisplayed () {
 		// Request datas from API for the specific class
-		// Method is exposed by the Tunnel on each class instance
+		// Method is exposed by the Manager on each class instance
 		const datas = this.requestDatas('step-people');
 
 		// The step can be displayed if the following conditions are resolved:

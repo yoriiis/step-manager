@@ -14,12 +14,14 @@ export default class StepSpecie extends CustomSteps {
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate (datas) {
+	getTemplate () {
+		const listSpecie = this.options.datas.species.results;
+
 		/* prettier-ignore */
 		return `<div class="step-specie">
                     <h2 class="title">Choose your favorites specie</h2>
 					<ul class="list">
-						${datas.listSpecie.map((specie, index) => `
+						${listSpecie.map((specie, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
 									${specie.name}
@@ -29,19 +31,13 @@ export default class StepSpecie extends CustomSteps {
 					</ul>
 					<ul class="nav">
 						<li class="nav-item">
-							<button class="btn" data-tunnel-previous>Previous step</button>
+							<button class="btn" data-step-previous>Previous step</button>
 						</li>
 						<li class="nav-item">
-							<button type="submit" class="btn disabled" data-tunnel-next>Submit</button>
+							<button type="submit" class="btn disabled" data-step-next>Submit</button>
 						</li>
 					</ul>
                 </div>`;
-	}
-
-	getStepDatasToRender () {
-		return {
-			listSpecie: this.options.datas.species.results
-		};
 	}
 
 	/**
@@ -51,7 +47,7 @@ export default class StepSpecie extends CustomSteps {
 	 */
 	canTheStepBeDisplayed () {
 		// Request datas from cache for the specific class
-		// Method is exposed by the Tunnel on each class instance
+		// Method is exposed by the Manager on each class instance
 		const datas = this.requestDatas('step-people', 'step-planet');
 		const isStepPeopleValid = datas && datas[0] && datas[0].datas;
 		const isStepPlanetValid = datas && datas[1] && datas[1].datas;

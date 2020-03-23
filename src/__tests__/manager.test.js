@@ -5,9 +5,9 @@ import Steps from '../steps';
 
 import CacheManager from '../cache-manager';
 import Router from '../router';
-import { Tunnel } from '../index.js';
+import { Manager } from '../index.js';
 
-let tunnel;
+let manager;
 
 class StepPeople extends Steps {
 	id = 'step-people';
@@ -22,10 +22,6 @@ class StepPeople extends Steps {
 
 	getTemplate () {
 		return '<div class="step-people"></div>';
-	}
-
-	getStepDatasToRender () {
-		return {};
 	}
 
 	getDatasFromStep () {
@@ -48,10 +44,6 @@ class StepPlanet extends Steps {
 		return '<div class="step-planet"></div>';
 	}
 
-	getStepDatasToRender () {
-		return {};
-	}
-
 	getDatasFromStep () {
 		return {};
 	}
@@ -59,7 +51,7 @@ class StepPlanet extends Steps {
 
 const getOptions = () => {
 	return {
-		element: document.querySelector('#tunnel'),
+		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet],
 		onEnded: datas => true
@@ -67,62 +59,62 @@ const getOptions = () => {
 };
 
 const getInstance = () => {
-	return new Tunnel(getOptions());
+	return new Manager(getOptions());
 };
 
 beforeEach(() => {
-	window.sessionStorage.removeItem('tunnel');
-	document.body.innerHTML = '<div id="tunnel"></div>';
-	tunnel = getInstance();
+	window.sessionStorage.removeItem('stepManager');
+	document.body.innerHTML = '<div id="steps"></div>';
+	manager = getInstance();
 });
 
 afterEach(() => {
-	window.sessionStorage.removeItem('tunnel');
+	window.sessionStorage.removeItem('stepManager');
 	document.body.innerHTML = '';
 });
 
-describe('Tunnel function', () => {
+describe('Manager function', () => {
 	it('Should initialize the constructor', () => {
-		expect(tunnel.options).toEqual({
+		expect(manager.options).toEqual({
 			element: expect.any(HTMLDivElement),
 			datas: datas,
 			steps: [StepPeople, StepPlanet],
 			cacheMethod: 'sessionStorage',
-			keyBrowserStorage: 'tunnel',
+			keyBrowserStorage: 'stepManager',
 			onEnded: expect.any(Function)
 		});
 	});
 
 	it('Should initialize the constructor without options', () => {
-		const instance = new Tunnel();
+		const instance = new Manager();
 
 		expect(instance.options).toEqual({
 			element: null,
 			datas: {},
 			steps: [],
 			cacheMethod: 'sessionStorage',
-			keyBrowserStorage: 'tunnel',
+			keyBrowserStorage: 'stepManager',
 			onEnded: expect.any(Function)
 		});
 	});
 
 	it('Should call the init function', () => {
-		tunnel.addEvents = jest.fn();
-		tunnel.analyzeSteps = jest.fn();
+		manager.addEvents = jest.fn();
+		manager.analyzeSteps = jest.fn();
 
-		tunnel.init();
+		manager.init();
 
-		expect(tunnel.CacheManager).toBeInstanceOf(CacheManager);
-		expect(tunnel.Router).toBeInstanceOf(Router);
-		expect(tunnel.addEvents).toHaveBeenCalled();
-		expect(tunnel.analyzeSteps).toHaveBeenCalled();
+		expect(manager.CacheManager).toBeInstanceOf(CacheManager);
+		expect(manager.Router).toBeInstanceOf(Router);
+		expect(manager.addEvents).toHaveBeenCalled();
+		expect(manager.analyzeSteps).toHaveBeenCalled();
 	});
 
 	it('Should analyze steps', () => {
-		tunnel.init();
-		tunnel.analyzeSteps();
+		manager.init();
+		manager.analyzeSteps();
 
-		expect(tunnel.datas).toEqual({
+		expect(manager.datas).toEqual({
 			'step-people': {
 				datas: null,
 				index: 0,
@@ -137,59 +129,59 @@ describe('Tunnel function', () => {
 	});
 
 	it('Should add event listeners', () => {
-		tunnel.options.element.addEventListener = jest.fn();
+		manager.options.element.addEventListener = jest.fn();
 
-		tunnel.init();
-		tunnel.addEvents();
+		manager.init();
+		manager.addEvents();
 
-		expect(tunnel.options.element.addEventListener).toHaveBeenCalledWith(
-			'tunnelNext',
-			tunnel.onTriggerTunnelNext,
+		expect(manager.options.element.addEventListener).toHaveBeenCalledWith(
+			'stepNext',
+			manager.onTriggerStepNext,
 			false
 		);
-		expect(tunnel.options.element.addEventListener).toHaveBeenCalledWith(
-			'tunnelPrevious',
-			tunnel.onTriggerTunnelPrevious,
+		expect(manager.options.element.addEventListener).toHaveBeenCalledWith(
+			'stepPrevious',
+			manager.onTriggerStepPrevious,
 			false
 		);
 	});
 
-	it('Should trigger tunnel next', () => {
-		tunnel.init();
-		tunnel.Router.triggerNext = jest.fn();
-		tunnel.triggerTunnelNext();
+	it('Should trigger step next', () => {
+		manager.init();
+		manager.Router.triggerNext = jest.fn();
+		manager.triggerStepNext();
 
-		expect(tunnel.Router.triggerNext).toHaveBeenCalled();
+		expect(manager.Router.triggerNext).toHaveBeenCalled();
 	});
 
-	it('Should trigger tunnel next when tunnel is ended', () => {
-		tunnel.init();
-		tunnel.ended = true;
-		tunnel.Router.triggerNext = jest.fn();
-		tunnel.triggerTunnelNext();
+	it('Should trigger step next when all steps are complete', () => {
+		manager.init();
+		manager.isCompleted = true;
+		manager.Router.triggerNext = jest.fn();
+		manager.triggerStepNext();
 
-		expect(tunnel.Router.triggerNext).not.toHaveBeenCalled();
+		expect(manager.Router.triggerNext).not.toHaveBeenCalled();
 	});
 
 	it('Should call the onEnded function', () => {
-		tunnel.init();
-		tunnel.options.onEnded = jest.fn();
-		tunnel.tunnelEnded();
+		manager.init();
+		manager.options.onEnded = jest.fn();
+		manager.allStepsComplete();
 
-		expect(tunnel.options.onEnded).toHaveBeenCalled();
+		expect(manager.options.onEnded).toHaveBeenCalled();
 	});
 
-	it('Should trigger tunnel previous', () => {
-		tunnel.init();
-		tunnel.Router.triggerPrevious = jest.fn();
-		tunnel.triggerTunnelPrevious();
+	it('Should trigger step previous', () => {
+		manager.init();
+		manager.Router.triggerPrevious = jest.fn();
+		manager.triggerStepPrevious();
 
-		expect(tunnel.Router.triggerPrevious).toHaveBeenCalled();
+		expect(manager.Router.triggerPrevious).toHaveBeenCalled();
 	});
 
 	it('Should call the requestDatas', () => {
-		tunnel.init();
-		tunnel.datas = {
+		manager.init();
+		manager.datas = {
 			'step-people': {
 				datas: true,
 				index: 0,
@@ -201,7 +193,7 @@ describe('Tunnel function', () => {
 				route: 'planet'
 			}
 		};
-		const results = tunnel.steps.people.requestDatas('step-people');
+		const results = manager.steps.people.requestDatas('step-people');
 
 		expect(results).toEqual([
 			{

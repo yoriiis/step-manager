@@ -21,10 +21,6 @@ class StepPeople extends Steps {
 		return '<div class="step-people"></div>';
 	}
 
-	getStepDatasToRender () {
-		return {};
-	}
-
 	getDatasFromStep () {
 		return {};
 	}
@@ -45,10 +41,6 @@ class StepPlanet extends Steps {
 		return '<div class="step-planet"></div>';
 	}
 
-	getStepDatasToRender () {
-		return {};
-	}
-
 	getDatasFromStep () {
 		return {};
 	}
@@ -62,7 +54,7 @@ const getOptions = () => {
 			people: new StepPeople(),
 			planet: new StepPlanet()
 		},
-		element: document.querySelector('#tunnel'),
+		element: document.querySelector('#steps'),
 		getDatasFromCache: (...filters) => new CacheManager().getDatasFromCache(filters)
 	};
 };
@@ -72,13 +64,13 @@ const getInstance = () => {
 };
 
 beforeEach(() => {
-	window.sessionStorage.removeItem('tunnel');
-	document.body.innerHTML = '<div id="tunnel"></div>';
+	window.sessionStorage.removeItem('stepManager');
+	document.body.innerHTML = '<div id="steps"></div>';
 	router = getInstance();
 });
 
 afterEach(() => {
-	window.sessionStorage.removeItem('tunnel');
+	window.sessionStorage.removeItem('stepManager');
 	document.body.innerHTML = '';
 	window.location.hash = '';
 });
@@ -87,7 +79,7 @@ describe('Router function', () => {
 	it('Should initialize the constructor', () => {
 		expect(router.defaultRoute).toEqual('people');
 		expect(router.stepsOrder).toEqual(['people', 'planet']);
-		expect(router.element).toEqual(document.querySelector('#tunnel'));
+		expect(router.element).toEqual(document.querySelector('#steps'));
 		expect(router.steps).toEqual({
 			people: new StepPeople(),
 			planet: new StepPlanet()

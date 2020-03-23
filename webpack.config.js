@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
 	return {
 		watch: !isProduction,
 		entry: {
-			'tunnel-steps': './src/index.js'
+			'step-manager': './src/index.js'
 		},
 		watchOptions: {
 			ignored: /node_modules/
@@ -22,7 +22,7 @@ module.exports = (env, argv) => {
 			filename: '[name].js',
 			sourceMapFilename: '[file].map',
 			libraryTarget: 'umd',
-			library: 'tunnel-steps'
+			library: 'stepManager'
 		},
 		module: {
 			rules: [
