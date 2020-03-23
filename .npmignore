@@ -14,7 +14,6 @@ src/
 .stylelintignore
 .travis.yml
 babel.config.js
-CHANGELOG.md
 jest.config.js
 postcss.config.js
 prettier.config.js
