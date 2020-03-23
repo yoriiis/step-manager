@@ -2,6 +2,7 @@
 .vscode/
 coverage
 examples/
+gh-pages/
 src/
 .browserslistrc
 .editorconfig
@@ -10,8 +11,10 @@ src/
 .gitignore
 .markdownlint.yml
 .nvmrc
+.stylelintignore
 .travis.yml
 babel.config.js
+CHANGELOG.md
 jest.config.js
 postcss.config.js
 prettier.config.js
