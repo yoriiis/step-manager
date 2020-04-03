@@ -18,6 +18,8 @@ export default class Router {
 		this.stepCreated = false;
 		this.applicationReady = false;
 		this.stepRedirected = {};
+
+		this.hashChanged = this.hashChanged.bind(this);
 	}
 
 	/**
@@ -48,8 +50,7 @@ export default class Router {
 	 */
 	addEvents () {
 		// Create the hash changed event of all the application
-		this.onHashChanged = this.hashChanged.bind(this);
-		window.addEventListener('hashchange', this.onHashChanged, false);
+		window.addEventListener('hashchange', this.hashChanged, false);
 	}
 
 	/**
@@ -70,11 +71,7 @@ export default class Router {
 		this.currentRoute = route;
 
 		// The step can be dislayed
-		if (datas.canBeDisplayed) {
-			this.stepCanBeDisplayed(e);
-		} else {
-			this.stepCantBeDisplayed(e, datas.fallbackRoute);
-		}
+		this.stepCanBeDisplayed(e, datas.canBeDisplayed ? datas.fallbackRoute : null);
 	}
 
 	/**
@@ -235,8 +232,8 @@ export default class Router {
 		// Store the current route as the previous route because the route hasn't changed yet
 		this.previousRoute = this.currentRoute;
 
-		const nextRoute = this.getPreviousStepRoute(this.previousRoute);
-		this.setRoute(nextRoute);
+		const previousRoute = this.getPreviousStepRoute(this.previousRoute);
+		this.setRoute(previousRoute);
 	}
 
 	/**
@@ -251,18 +248,18 @@ export default class Router {
 	}
 
 	/**
-	 * Get the next route from the step order array
-	 * If there is no next step, the function return "end"
+	 * Get the previous route from the step order array
+	 * If there is no previous step, the function return "end"
 	 *
 	 * @param {String} route Current route
 	 *
-	 * @returns {String} Next route or "end"
+	 * @returns {String} Previous route or "end"
 	 */
 	getPreviousStepRoute (route) {
-		const nextStep = this.options.steps[
-			this.options.stepsOrder[this.getIndexFromRoute(route) - 1]
-		];
-		return nextStep ? nextStep.route : 'end';
+		const indexCurrentRoute = this.getIndexFromRoute(route);
+		const previousStep = this.options.steps[this.options.stepsOrder[indexCurrentRoute - 1]];
+
+		return previousStep ? previousStep.route : this.options.defaultRoute;
 	}
 
 	/**
@@ -274,9 +271,9 @@ export default class Router {
 	 * @returns {String} Next route or "end"
 	 */
 	getNextStepRoute (route) {
-		const nextStep = this.options.steps[
-			this.options.stepsOrder[this.getIndexFromRoute(route) + 1]
-		];
+		const indexCurrentRoute = this.getIndexFromRoute(route);
+		const nextStep = this.options.steps[this.options.stepsOrder[indexCurrentRoute + 1]];
+
 		return nextStep ? nextStep.route : 'end';
 	}
 
