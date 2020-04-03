@@ -60,14 +60,14 @@ describe('Steps render', () => {
 		steps.afterRender = jest.fn();
 		steps.getTemplate = jest.fn().mockImplementation(() => 'CONTENT');
 
-		steps.render({ datas });
+		steps.render(datas);
 
 		expect(steps.requestOptions).toHaveBeenCalled();
 		expect(steps.getTemplate).toHaveBeenCalled();
 		expect(document.body.innerHTML).toBe(
 			'<div id="steps"><div class="step-people"><button data-step-previous=""></button><button data-step-next=""></button></div>CONTENT</div>'
 		);
-		expect(steps.afterRender).toHaveBeenCalledWith({ datas });
+		expect(steps.afterRender).toHaveBeenCalledWith(datas);
 	});
 });
 
@@ -77,7 +77,7 @@ describe('Steps afterRender', () => {
 		steps.renderDatasFromCache = jest.fn();
 
 		document.querySelector('#steps').innerHTML = '<div class="step-people"></div>';
-		steps.afterRender({ datas });
+		steps.afterRender(datas);
 
 		expect(steps.currentStep).toBe(document.querySelector('.step-people'));
 		expect(steps.addEvents).toHaveBeenCalled();
@@ -88,7 +88,7 @@ describe('Steps afterRender', () => {
 		steps.addEvents = jest.fn();
 		steps.renderDatasFromCache = jest.fn();
 
-		steps.afterRender({ datas: null });
+		steps.afterRender(null);
 
 		expect(steps.renderDatasFromCache).not.toHaveBeenCalled();
 	});

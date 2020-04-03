@@ -12,7 +12,7 @@ export default class Steps {
 	 *
 	 * @param {Object} datas Datas from the cache
 	 */
-	render ({ datas }) {
+	render (datas) {
 		this.options = this.requestOptions();
 
 		// Insert the generated HTML for the step
@@ -20,9 +20,7 @@ export default class Steps {
 		this.options.element.insertAdjacentHTML('beforeend', this.getTemplate());
 
 		// The DOM is up to date, trigger the after render method with datas from the cache
-		this.afterRender({
-			datas: datas
-		});
+		this.afterRender(datas);
 	}
 
 	/**
@@ -30,7 +28,7 @@ export default class Steps {
 	 *
 	 * @param {Object} datas Datas from the cache
 	 */
-	afterRender ({ datas } = {}) {
+	afterRender (datas) {
 		// Set cached selector
 		this.currentStep = this.options.element.querySelector(this.selector);
 

@@ -83,11 +83,13 @@ describe('Router constructor', () => {
 			defaultRoute: 'people',
 			stepsOrder: ['people', 'planet'],
 			steps: {
-				people: new StepPeople(),
-				planet: new StepPlanet()
+				people: expect.any(Object),
+				planet: expect.any(Object)
 			},
 			getDatasFromCache: expect.any(Function)
 		});
+		expect(router.options.steps.people).toBeInstanceOf(StepPeople);
+		expect(router.options.steps.planet).toBeInstanceOf(StepPlanet);
 		expect(router.reverseNavigation).toBe(false);
 		expect(router.stepCreated).toBe(false);
 		expect(router.applicationReady).toBe(false);
@@ -205,9 +207,7 @@ describe('Router stepCanBeDisplayed', () => {
 		expect(router.getPreviousRoute).toHaveBeenCalledWith(event);
 		expect(router.previousRoute).toBe('people');
 		expect(router.destroyStep).toHaveBeenCalledWith('people');
-		expect(router.createStep).toHaveBeenCalledWith({
-			route: 'planet'
-		});
+		expect(router.createStep).toHaveBeenCalledWith('planet');
 	});
 
 	it('Should call the stepCanBeDisplayed function without event', () => {
@@ -239,9 +239,7 @@ describe('Router stepCanBeDisplayed', () => {
 		expect(router.getPreviousRoute).not.toHaveBeenCalled();
 		expect(router.previousRoute).toBe('planet');
 		expect(router.destroyStep).toHaveBeenCalledWith('planet');
-		expect(router.createStep).toHaveBeenCalledWith({
-			route: 'people'
-		});
+		expect(router.createStep).toHaveBeenCalledWith('people');
 		expect(router.stepRedirected.redirect).toBe(false);
 	});
 
@@ -360,12 +358,10 @@ describe('Router createStep', () => {
 		}));
 		router.options.steps[route].render = jest.fn();
 
-		router.createStep({ route });
+		router.createStep(route);
 
 		expect(router.options.getDatasFromCache).toHaveBeenCalledWith([route]);
-		expect(router.options.steps[route].render).toHaveBeenCalledWith({
-			datas: true
-		});
+		expect(router.options.steps[route].render).toHaveBeenCalledWith(true);
 		expect(router.applicationReady).toBe(true);
 	});
 
@@ -375,12 +371,10 @@ describe('Router createStep', () => {
 		router.options.getDatasFromCache = jest.fn().mockImplementation(() => null);
 		router.options.steps[route].render = jest.fn();
 
-		router.createStep({ route });
+		router.createStep(route);
 
 		expect(router.options.getDatasFromCache).toHaveBeenCalledWith([route]);
-		expect(router.options.steps[route].render).toHaveBeenCalledWith({
-			datas: null
-		});
+		expect(router.options.steps[route].render).toHaveBeenCalled();
 		expect(router.applicationReady).toBe(true);
 	});
 
@@ -391,12 +385,10 @@ describe('Router createStep', () => {
 		router.options.steps[route].render = jest.fn();
 
 		router.applicationReady = true;
-		router.createStep({ route });
+		router.createStep(route);
 
 		expect(router.options.getDatasFromCache).toHaveBeenCalledWith([route]);
-		expect(router.options.steps[route].render).toHaveBeenCalledWith({
-			datas: null
-		});
+		expect(router.options.steps[route].render).toHaveBeenCalled();
 		expect(router.applicationReady).toBe(true);
 	});
 });

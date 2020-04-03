@@ -95,9 +95,7 @@ export default class Router {
 				this.destroyStep(this.previousRoute);
 
 				// Create the new step on destruction callback
-				this.createStep({
-					route: this.currentRoute
-				});
+				this.createStep(this.currentRoute);
 
 				this.stepCreated = true;
 			}
@@ -105,9 +103,7 @@ export default class Router {
 
 		// If destroy method was not called, create the step now
 		if (!this.stepCreated) {
-			this.createStep({
-				route: this.currentRoute
-			});
+			this.createStep(this.currentRoute);
 		}
 
 		// Reset the redirect marker
@@ -177,14 +173,16 @@ export default class Router {
 	 *
 	 * @param {String} route Route of the step
 	 */
-	createStep ({ route }) {
+	createStep (route) {
 		// Get datas from cache before render the step
 		const stepDatas = this.options.getDatasFromCache([route]);
 
 		// Call the render method of the step
-		this.options.steps[route].render({
-			datas: stepDatas ? stepDatas[route].datas : null
-		});
+		if (stepDatas) {
+			this.options.steps[route].render(stepDatas[route].datas);
+		} else {
+			this.options.steps[route].render();
+		}
 
 		// Prevent step created before application ready
 		if (!this.applicationReady) {
