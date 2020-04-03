@@ -41,3 +41,26 @@ export function mockCacheManager (manager, { getDatasFromCache = true } = {}) {
 		setDatasToCache: jest.fn()
 	};
 }
+
+/**
+ * Mock implementation of Browser storage
+ *
+ * @return {Object} Object implementation of browser storage
+ */
+export function mockStorage () {
+	let store = {};
+	return {
+		getItem (key) {
+			return store[key] || null;
+		},
+		setItem (key, value) {
+			store[key] = value.toString();
+		},
+		removeItem (key) {
+			delete store[key];
+		},
+		clear () {
+			store = {};
+		}
+	};
+}

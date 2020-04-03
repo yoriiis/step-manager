@@ -68,7 +68,6 @@ beforeEach(() => {
 		oldURL: 'http://localhost.com/#people'
 	};
 	window.sessionStorage.removeItem('stepManager');
-	document.body.innerHTML = '<div id="steps"></div>';
 	router = getInstance();
 });
 

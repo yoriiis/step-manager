@@ -26,27 +26,39 @@ export default class CacheManager {
 		// Retrieve the data in the cache with the correct key
 		// Cache key is composed by profile id and a static name
 		const datas =
-			window[this.options.cacheMethod].getItem(`${this.options.keyBrowserStorage}`) || null;
+			window[this.options.cacheMethod].getItem(this.options.keyBrowserStorage) || null;
 
 		if (datas !== null) {
 			// Datas are stringify, parse them
 			const datasFormatted = JSON.parse(datas);
 
 			// Check if datas must be filtered
-			if (Array.isArray(filters)) {
-				// Loop on all route filters and extract selected routes datas
-				filters.forEach(filter => {
-					if (datasFormatted[filter]) {
-						if (datasToReturn === null) {
-							datasToReturn = {};
-						}
-						datasToReturn[filter] = datasFormatted[filter];
-					}
-				});
-			} else {
-				datasToReturn = datasFormatted;
-			}
+			datasToReturn = Array.isArray(filters)
+				? this.filterDatas(filters, datasFormatted)
+				: datasFormatted;
 		}
+		return datasToReturn;
+	}
+
+	/**
+	 * Filter datas from cache by keys
+	 *
+	 * @param {Array} filters Filters list
+	 * @param {Object} datas Datas from browser storage
+	 *
+	 * @returns {Object} Datas filtered by keys
+	 */
+	filterDatas (filters, datas) {
+		let datasToReturn = null;
+
+		// Loop on all route filters and extract selected routes datas
+		const validKeys = Object.keys(datas).filter(key => filters.includes(key));
+
+		if (validKeys.length) {
+			datasToReturn = {};
+			validKeys.map(key => (datasToReturn[key] = datas[key]));
+		}
+
 		return datasToReturn;
 	}
 
