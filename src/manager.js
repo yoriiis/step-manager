@@ -30,6 +30,9 @@ export default class Manager {
 		this.options = Object.assign(defaultOptions, userOptions);
 
 		this.isCompleted = false;
+
+		this.triggerPreviousStep = this.triggerPreviousStep.bind(this);
+		this.triggerNextStep = this.triggerNextStep.bind(this);
 	}
 
 	/**
@@ -107,12 +110,10 @@ export default class Manager {
 	addEvents () {
 		// Create custom event to listen navigation changes from steps
 		this.eventNextStep = new window.Event('nextStep');
-		this.ontriggerNextStep = this.triggerNextStep.bind(this);
-		this.options.element.addEventListener('nextStep', this.ontriggerNextStep, false);
+		this.options.element.addEventListener('nextStep', this.triggerNextStep, false);
 
 		this.eventNextStep = new window.Event('previousStep');
-		this.ontriggerPreviousStep = this.triggerPreviousStep.bind(this);
-		this.options.element.addEventListener('previousStep', this.ontriggerPreviousStep, false);
+		this.options.element.addEventListener('previousStep', this.triggerPreviousStep, false);
 	}
 
 	/**
@@ -161,7 +162,7 @@ export default class Manager {
 		this.destroy();
 
 		// Execute the user callback function if available
-		if (typeof this.options.onComplete === 'function') {
+		if (this.options.onComplete instanceof Function) {
 			this.options.onComplete(this.CacheManager.getDatasFromCache());
 		}
 
@@ -173,8 +174,8 @@ export default class Manager {
 	 * Destroy the manager (event listeners, router)
 	 */
 	destroy () {
-		this.options.element.removeEventListener('nextStep', this.ontriggerNextStep);
-		this.options.element.removeEventListener('previousStep', this.ontriggerPreviousStep);
+		this.options.element.removeEventListener('nextStep', this.triggerNextStep);
+		this.options.element.removeEventListener('previousStep', this.triggerPreviousStep);
 
 		this.Router.destroy();
 	}

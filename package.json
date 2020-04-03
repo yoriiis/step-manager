@@ -30,7 +30,7 @@
 		"test:eslint": "eslint -c ./.eslintrc.js .",
 		"test:markdown": "markdownlint '**/*.md' --ignore node_modules",
 		"test:stylelint": "stylelint './**/*.css' --config ./stylelint.config.js",
-		"test:watch": "jest --watch --coverage"
+		"test:watch": "jest --watchAll --coverage"
 	},
 	"dependencies": {},
 	"devDependencies": {

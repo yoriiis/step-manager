@@ -2,10 +2,13 @@
 
 import datas from './datas.json';
 import Steps from '../steps';
+import { mockAnalyzeSteps, mockRouter, mockCacheManager } from '../__mocks__/mocks';
 
 import CacheManager from '../cache-manager';
 import Router from '../router';
 import { Manager } from '../index.js';
+
+jest.mock('../router');
 
 let manager;
 
@@ -47,6 +50,15 @@ class StepPlanet extends Steps {
 	}
 }
 
+const resultAnalyzeSteps = {
+	steps: {
+		people: StepPeople,
+		planet: StepPlanet
+	},
+	stepsOrder: ['people', 'planet'],
+	defaultRoute: 'people'
+};
+
 const getOptions = () => {
 	return {
 		element: document.querySelector('#steps'),
@@ -71,7 +83,7 @@ afterEach(() => {
 	document.body.innerHTML = '';
 });
 
-describe('Manager function', () => {
+describe('Manager constructor', () => {
 	it('Should initialize the constructor', () => {
 		expect(manager.options).toEqual({
 			element: expect.any(HTMLDivElement),
@@ -81,6 +93,7 @@ describe('Manager function', () => {
 			keyBrowserStorage: 'stepManager',
 			onComplete: expect.any(Function)
 		});
+		expect(manager.isCompleted).toBe(false);
 	});
 
 	it('Should initialize the constructor without options', () => {
@@ -94,90 +107,178 @@ describe('Manager function', () => {
 			keyBrowserStorage: 'stepManager',
 			onComplete: expect.any(Function)
 		});
+		expect(manager.isCompleted).toBe(false);
 	});
+});
 
+describe('Manager init', () => {
 	it('Should call the init function', () => {
 		manager.addEvents = jest.fn();
+		mockAnalyzeSteps(manager, resultAnalyzeSteps);
+		mockRouter(manager);
 
 		manager.init();
 
+		expect(manager.addEvents).toHaveBeenCalled();
+		expect(manager.analyzeSteps).toHaveBeenCalled();
+		expect(manager.steps).toEqual(resultAnalyzeSteps.steps);
 		expect(manager.CacheManager).toBeInstanceOf(CacheManager);
 		expect(manager.Router).toBeInstanceOf(Router);
-		expect(manager.addEvents).toHaveBeenCalled();
+		expect(manager.Router.init).toHaveBeenCalled();
 	});
+});
 
-	it('Should analyze steps', () => {
+describe('Manager analyzeSteps', () => {
+	it('Should call the analyzeSteps function', () => {
+		mockCacheManager(manager);
+
 		const results = manager.analyzeSteps();
 
 		expect(results.steps.people).toBeInstanceOf(StepPeople);
 		expect(results.steps.planet).toBeInstanceOf(StepPlanet);
+		expect(results.stepsOrder).toEqual(['people', 'planet']);
+		expect(results.defaultRoute).toEqual('people');
+		expect(results.steps.people.requestOptions).toEqual(expect.any(Function));
+		expect(results.steps.people.requestOptions()).toEqual(manager.options);
+		expect(results.steps.people.requestDatas).toEqual(expect.any(Function));
+		expect(results.steps.people.requestDatas()).toEqual(true);
 	});
+});
 
-	it('Should add event listeners', () => {
+describe('Manager addEvents', () => {
+	it('Should call the addEvents function', () => {
 		manager.options.element.addEventListener = jest.fn();
 
-		manager.init();
 		manager.addEvents();
 
 		expect(manager.options.element.addEventListener).toHaveBeenCalledWith(
 			'nextStep',
-			manager.ontriggerNextStep,
+			manager.triggerNextStep,
 			false
 		);
 		expect(manager.options.element.addEventListener).toHaveBeenCalledWith(
 			'previousStep',
-			manager.ontriggerPreviousStep,
+			manager.triggerPreviousStep,
 			false
 		);
 	});
+});
+describe('Manager triggerNextStep', () => {
+	it('Should cal the triggerNextStep function', () => {
+		mockRouter(manager);
 
-	it('Should trigger step next', () => {
-		manager.init();
-		manager.Router.triggerNext = jest.fn();
+		manager.steps = {
+			people: {
+				getDatasFromStep: jest.fn().mockImplementation(() => {
+					return true;
+				})
+			}
+		};
+		mockCacheManager(manager);
+
+		manager.allStepsComplete = jest.fn();
+
 		manager.triggerNextStep();
 
+		expect(manager.steps.people.getDatasFromStep).toHaveBeenCalled();
 		expect(manager.Router.triggerNext).toHaveBeenCalled();
+		expect(manager.CacheManager.setDatasToCache).toHaveBeenCalledWith({
+			route: 'people',
+			datas: true
+		});
+		expect(manager.allStepsComplete).not.toHaveBeenCalled();
 	});
 
-	it('Should trigger step next when all steps are complete', () => {
-		manager.init();
+	it('Should cal the triggerNextStep function with isComplete TRUE', () => {
+		mockRouter(manager);
+
+		manager.steps = {
+			people: {
+				getDatasFromStep: jest.fn().mockImplementation(() => {
+					return true;
+				})
+			}
+		};
+		mockCacheManager(manager);
+		manager.allStepsComplete = jest.fn();
+
 		manager.isCompleted = true;
-		manager.Router.triggerNext = jest.fn();
 		manager.triggerNextStep();
 
+		expect(manager.steps.people.getDatasFromStep).not.toHaveBeenCalled();
+		expect(manager.CacheManager.setDatasToCache).not.toHaveBeenCalled();
 		expect(manager.Router.triggerNext).not.toHaveBeenCalled();
+		expect(manager.allStepsComplete).not.toHaveBeenCalled();
 	});
 
-	it('Should call the onComplete function', () => {
-		manager.init();
-		manager.options.onComplete = jest.fn();
-		manager.allStepsComplete();
+	it('Should cal the triggerNextStep function with last step', () => {
+		mockRouter(manager, {
+			triggerNext: false
+		});
+		manager.steps = {
+			people: {
+				getDatasFromStep: jest.fn().mockImplementation(() => {
+					return true;
+				})
+			}
+		};
+		mockCacheManager(manager);
+		manager.allStepsComplete = jest.fn();
 
-		expect(manager.options.onComplete).toHaveBeenCalled();
+		manager.triggerNextStep();
+
+		expect(manager.steps.people.getDatasFromStep).toHaveBeenCalled();
+		expect(manager.CacheManager.setDatasToCache).toHaveBeenCalled();
+		expect(manager.Router.triggerNext).toHaveBeenCalled();
+		expect(manager.allStepsComplete).toHaveBeenCalled();
 	});
+});
 
-	it('Should trigger step previous', () => {
-		manager.init();
-		manager.Router.triggerPrevious = jest.fn();
+describe('Manager triggerPreviousStep', () => {
+	it('Should call the triggerPreviousStep function', () => {
+		mockRouter(manager);
+
 		manager.triggerPreviousStep();
 
 		expect(manager.Router.triggerPrevious).toHaveBeenCalled();
 	});
+});
 
-	it('Should call the requestDatas', () => {
-		manager.init();
-		const datas = {
-			people: {
-				datas: [
-					{ key: '5', name: 'Owen Lars' },
-					{ key: '6', name: 'Beru Whitesun lars' }
-				]
-			}
-		};
-		window.sessionStorage.setItem('stepManager', JSON.stringify(datas));
-		const steps = manager.analyzeSteps().steps;
-		const results = steps.people.requestDatas('people');
+describe('Manager allStepsComplete', () => {
+	it('Should call the allStepsComplete function', () => {
+		mockRouter(manager);
+		manager.destroy = jest.fn();
+		manager.options.onComplete = jest.fn();
+		mockCacheManager(manager);
 
-		expect(results).toEqual(datas);
+		manager.allStepsComplete();
+
+		expect(manager.Router.destroyStep).toHaveBeenCalledWith('people');
+		expect(manager.Router.setRoute).toHaveBeenCalledWith('');
+		expect(manager.destroy).toHaveBeenCalled();
+
+		// Because Jest update the instance of onComplete
+		// Function is executed only if instanceof Function
+		expect(manager.options.onComplete).not.toHaveBeenCalledWith(true);
+		expect(manager.CacheManager.removeDatasFromCache).toHaveBeenCalled();
+	});
+});
+
+describe('Manager destroy', () => {
+	it('Should call the destroy', () => {
+		manager.options.element.removeEventListener = jest.fn();
+		mockRouter(manager);
+
+		manager.destroy();
+
+		expect(manager.options.element.removeEventListener).toHaveBeenCalledWith(
+			'nextStep',
+			manager.triggerNextStep
+		);
+		expect(manager.options.element.removeEventListener).toHaveBeenCalledWith(
+			'previousStep',
+			manager.triggerPreviousStep
+		);
+		expect(manager.Router.destroy).toHaveBeenCalled();
 	});
 });
