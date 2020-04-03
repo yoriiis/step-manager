@@ -504,4 +504,56 @@ describe('Router getNextStepRoute', () => {
 		expect(router.getIndexFromRoute).toHaveBeenCalledWith(route);
 		expect(result).toBe('planet');
 	});
+
+	it('Should call the getNextStepRoute function on the last step', () => {
+		router.getIndexFromRoute = jest.fn().mockImplementation(() => {
+			return '1';
+		});
+
+		const route = 'planet';
+		const result = router.getNextStepRoute(route);
+
+		expect(router.getIndexFromRoute).toHaveBeenCalledWith(route);
+		expect(result).toBe('end');
+	});
+});
+
+describe('Router getIndexFromRoute', () => {
+	it('Should call the getIndexFromRoute function', () => {
+		expect(router.getIndexFromRoute('people')).toBe(0);
+	});
+
+	it('Should call the getIndexFromRoute function with unknow route', () => {
+		expect(router.getIndexFromRoute('fake-step')).toBe(-1);
+	});
+});
+
+describe('Router getRoute', () => {
+	it('Should call the getRoute function', () => {
+		expect(router.getRoute()).toBe('');
+	});
+
+	it('Should call the getRoute function on the people step', () => {
+		window.location.hash = '#people';
+
+		expect(router.getRoute()).toBe('people');
+	});
+});
+
+describe('Router setRoute', () => {
+	it('Should call the setRoute function', () => {
+		router.setRoute('people');
+
+		expect(window.location.hash).toBe('#people');
+	});
+});
+
+describe('Router destroy', () => {
+	it('Should call the destroy function', () => {
+		window.removeEventListener = jest.fn();
+
+		router.destroy();
+
+		expect(window.removeEventListener).toHaveBeenCalledWith('hashchange', router.hashChanged);
+	});
 });

@@ -256,7 +256,7 @@ export default class Router {
 	 * @returns {String} Previous route or "end"
 	 */
 	getPreviousStepRoute (route) {
-		const indexCurrentRoute = this.getIndexFromRoute(route);
+		const indexCurrentRoute = parseInt(this.getIndexFromRoute(route));
 		const previousStep = this.options.steps[this.options.stepsOrder[indexCurrentRoute - 1]];
 
 		return previousStep ? previousStep.route : this.options.defaultRoute;
@@ -271,7 +271,7 @@ export default class Router {
 	 * @returns {String} Next route or "end"
 	 */
 	getNextStepRoute (route) {
-		const indexCurrentRoute = this.getIndexFromRoute(route);
+		const indexCurrentRoute = parseInt(this.getIndexFromRoute(route));
 		const nextStep = this.options.steps[this.options.stepsOrder[indexCurrentRoute + 1]];
 
 		return nextStep ? nextStep.route : 'end';
@@ -310,6 +310,6 @@ export default class Router {
 	 * Destroy the router (event listeners)
 	 */
 	destroy () {
-		window.removeEventListener('hashchange', this.onHashChanged);
+		window.removeEventListener('hashchange', this.hashChanged);
 	}
 }
