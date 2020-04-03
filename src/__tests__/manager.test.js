@@ -73,13 +73,11 @@ const getInstance = () => {
 };
 
 beforeEach(() => {
-	window.sessionStorage.removeItem('stepManager');
 	document.body.innerHTML = '<div id="steps"></div>';
 	manager = getInstance();
 });
 
 afterEach(() => {
-	window.sessionStorage.removeItem('stepManager');
 	document.body.innerHTML = '';
 });
 
@@ -163,6 +161,7 @@ describe('Manager addEvents', () => {
 		);
 	});
 });
+
 describe('Manager triggerNextStep', () => {
 	it('Should cal the triggerNextStep function', () => {
 		mockRouter(manager);

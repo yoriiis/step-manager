@@ -3,6 +3,10 @@ export default class Steps {
 	fallbackRoute = null;
 	optionalStep = false;
 
+	constructor () {
+		this.clickOnCurrentStep = this.clickOnCurrentStep.bind(this);
+	}
+
 	/**
 	 * Render the step
 	 *
@@ -26,7 +30,7 @@ export default class Steps {
 	 *
 	 * @param {Object} datas Datas from the cache
 	 */
-	afterRender ({ datas }) {
+	afterRender ({ datas } = {}) {
 		// Set cached selector
 		this.currentStep = this.options.element.querySelector(this.selector);
 
@@ -55,32 +59,30 @@ export default class Steps {
 	 * All listeners are created on class properties to facilitate the deletion of events
 	 */
 	addEvents () {
-		this.onClickOnCurrentStep = e => {
-			const target = e.target;
-			if (
-				target.nodeName.toLowerCase() === 'button' &&
-				target.hasAttribute('data-step-previous')
-			) {
-				// Click on the next step button
-				this.clickToPreviousStep(e);
-			} else if (
-				target.nodeName.toLowerCase() === 'button' &&
-				target.hasAttribute('data-step-next')
-			) {
-				// Click on the next step button
-				this.clickToNextStep(e);
-			}
-		};
-
 		// Use event delegation for better performance
-		this.currentStep.addEventListener('click', this.onClickOnCurrentStep, false);
+		this.currentStep.addEventListener('click', this.clickOnCurrentStep, false);
 	}
 
 	/**
-	 * Remove steps event listeners
+	 * Click event listener on the step
+	 *
+	 * @param {Object} e Event listener datas
 	 */
-	removeEvents () {
-		this.currentStep.removeEventListener('click', this.onClickOnCurrentStep, false);
+	clickOnCurrentStep (e) {
+		const target = e.target;
+		if (
+			target.nodeName.toLowerCase() === 'button' &&
+			target.hasAttribute('data-step-previous')
+		) {
+			// Click on the previous step button
+			this.clickToPreviousStep(e);
+		} else if (
+			target.nodeName.toLowerCase() === 'button' &&
+			target.hasAttribute('data-step-next')
+		) {
+			// Click on the next step button
+			this.clickToNextStep(e);
+		}
 	}
 
 	/**
@@ -129,5 +131,12 @@ export default class Steps {
 		} else {
 			button.classList.add('disabled');
 		}
+	}
+
+	/**
+	 * Remove steps event listeners
+	 */
+	removeEvents () {
+		this.currentStep.removeEventListener('click', this.clickOnCurrentStep);
 	}
 }
