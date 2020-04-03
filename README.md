@@ -1,6 +1,6 @@
 # StepManager
 
-![StepManager](https://img.shields.io/badge/step--manager-v1.0.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
+![StepManager](https://img.shields.io/badge/step--manager-v1.1.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) [![Coverage Status](https://img.shields.io/coveralls/github/yoriiis/step-manager?style=for-the-badge)](https://coveralls.io/github/yoriiis/step-manager?branch=master)  ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
 
 `StepManager` is a library to create **flexible** and **robust** multiple **steps** navigation with hash, **validations**, browser **storage** and **hook** functions.
 
