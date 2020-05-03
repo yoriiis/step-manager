@@ -12,9 +12,9 @@ const getDatas = async function () {
 	let datas = window.localStorage.getItem('swapi');
 	if (datas === null) {
 		const apiUrls = [
-			'https://swapi.co/api/people/?page=1',
-			'https://swapi.co/api/planets/?page=1',
-			'https://swapi.co/api/species/?page=1'
+			'https://swapi.dev/api/people/?page=1',
+			'https://swapi.dev/api/planets/?page=1',
+			'https://swapi.dev/api/species/?page=1'
 		];
 		const requests = [];
 		apiUrls.forEach(url => requests.push(fetch(url).then(response => response.json())));
