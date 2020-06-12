@@ -2,6 +2,7 @@ import CustomSteps from './custom-steps';
 
 export default class StepPeople extends CustomSteps {
 	// Set public instance fields
+	id = 'people';
 	route = 'people';
 	selector = '.step-people';
 
@@ -11,14 +12,12 @@ export default class StepPeople extends CustomSteps {
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate () {
-		const listPeople = this.options.datas.people.results;
-
+	getTemplate(datas) {
 		/* prettier-ignore */
 		return `<div class="step-people">
                     <h2 class="title">Choose your favorites people</h2>
 					<ul class="list">
-						${listPeople.map((people, index) => `
+						${datas.map((people, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
 									${people.name}
@@ -39,10 +38,14 @@ export default class StepPeople extends CustomSteps {
 	 *
 	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		// The step can be displayed if the following conditions are resolved:
 		return {
 			canBeDisplayed: true
 		};
+	}
+
+	getStepDatasToRender() {
+		return this.options.datas.people.results;
 	}
 }

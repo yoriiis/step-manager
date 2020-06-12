@@ -18,7 +18,7 @@ export default class Steps {
 		// Insert the generated HTML for the step
 		// Get the template from the specific class and send it datas
 		this.options.element.insertAdjacentHTML(
-			"beforeend",
+			'beforeend',
 			this.getTemplate(this.getStepDatasToRender())
 		);
 
@@ -65,7 +65,7 @@ export default class Steps {
 	 */
 	addEvents() {
 		// Use event delegation for better performance
-		this.currentStep.addEventListener("click", this.clickOnCurrentStep, false);
+		this.currentStep.addEventListener('click', this.clickOnCurrentStep, false);
 	}
 
 	/**
@@ -76,14 +76,14 @@ export default class Steps {
 	clickOnCurrentStep(e) {
 		const target = e.target;
 		if (
-			target.nodeName.toLowerCase() === "button" &&
-			target.hasAttribute("data-step-previous")
+			target.nodeName.toLowerCase() === 'button' &&
+			target.hasAttribute('data-step-previous')
 		) {
 			// Click on the previous step button
 			this.clickToPreviousStep(e);
 		} else if (
-			target.nodeName.toLowerCase() === "button" &&
-			target.hasAttribute("data-step-next")
+			target.nodeName.toLowerCase() === 'button' &&
+			target.hasAttribute('data-step-next')
 		) {
 			// Click on the next step button
 			this.clickToNextStep(e);
@@ -101,7 +101,7 @@ export default class Steps {
 		// Click is authorized when the step is ready to submit or if the step is optional
 		if (this.stepIsReadyToSubmit || this.optionalStep) {
 			// Dispatch the custom event to the Manager
-			this.options.element.dispatchEvent(new window.CustomEvent("nextStep"));
+			this.options.element.dispatchEvent(new window.CustomEvent('nextStep'));
 		}
 	}
 
@@ -114,7 +114,7 @@ export default class Steps {
 		e.preventDefault();
 
 		// Dispatch the custom event to the Manager
-		this.options.element.dispatchEvent(new window.CustomEvent("previousStep"));
+		this.options.element.dispatchEvent(new window.CustomEvent('previousStep'));
 	}
 
 	checkIfStepIsReadyToSubmit() {
@@ -129,12 +129,12 @@ export default class Steps {
 	 * Update the submit button
 	 */
 	updateButtonToValidateStep() {
-		const button = this.currentStep.querySelector("[data-step-next]");
+		const button = this.currentStep.querySelector('[data-step-next]');
 
 		if (this.stepIsReadyToSubmit || this.optionalStep) {
-			button.classList.remove("disabled");
+			button.classList.remove('disabled');
 		} else {
-			button.classList.add("disabled");
+			button.classList.add('disabled');
 		}
 	}
 
@@ -142,6 +142,12 @@ export default class Steps {
 	 * Remove steps event listeners
 	 */
 	removeEvents() {
-		this.currentStep.removeEventListener("click", this.clickOnCurrentStep);
+		this.currentStep.removeEventListener('click', this.clickOnCurrentStep);
+	}
+
+	onChanged(action) {
+		return new Promise((resolve) => {
+			resolve();
+		});
 	}
 }

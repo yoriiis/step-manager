@@ -5,8 +5,8 @@ export default class CacheManager {
 	constructor(options) {
 		const userOptions = options || {};
 		const defaultOptions = {
-			cacheMethod: "sessionStorage",
-			keyBrowserStorage: "stepManager"
+			cacheMethod: 'sessionStorage',
+			keyBrowserStorage: 'stepManager'
 		};
 
 		// Merge default options with user options
@@ -52,11 +52,11 @@ export default class CacheManager {
 		let datasToReturn = null;
 
 		// Loop on all route filters and extract selected routes datas
-		const validKeys = Object.keys(datas).filter(key => filters.includes(key));
+		const validKeys = Object.keys(datas).filter((key) => filters.includes(key));
 
 		if (validKeys.length) {
 			datasToReturn = {};
-			validKeys.map(key => (datasToReturn[key] = datas[key]));
+			validKeys.map((key) => (datasToReturn[key] = datas[key]));
 		}
 
 		return datasToReturn;

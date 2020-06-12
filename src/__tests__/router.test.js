@@ -10,18 +10,18 @@ let event;
 class StepPeople extends Steps {
 	route = 'people';
 	selector = '.step-people';
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		return {
 			canBeDisplayed: true,
 			fallbackRoute: null
 		};
 	}
 
-	getTemplate () {
+	getTemplate() {
 		return '<div class="step-people"></div>';
 	}
 
-	getDatasFromStep () {
+	getDatasFromStep() {
 		return {};
 	}
 }
@@ -30,18 +30,18 @@ class StepPlanet extends Steps {
 	route = 'planet';
 	selector = '.step-planet';
 	fallbackRoute = 'people';
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		return {
 			canBeDisplayed: true,
 			fallbackRoute: 'people'
 		};
 	}
 
-	getTemplate () {
+	getTemplate() {
 		return '<div class="step-planet"></div>';
 	}
 
-	getDatasFromStep () {
+	getDatasFromStep() {
 		return {};
 	}
 }

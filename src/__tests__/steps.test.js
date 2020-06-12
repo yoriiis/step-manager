@@ -6,18 +6,18 @@ const datas = { people: true };
 class StepPeople extends Steps {
 	route = 'people';
 	selector = '.step-people';
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		return {
 			canBeDisplayed: true,
 			fallbackRoute: null
 		};
 	}
 
-	getTemplate () {
+	getTemplate() {
 		return '<div class="step-people"></div>';
 	}
 
-	getDatasFromStep () {
+	getDatasFromStep() {
 		return {};
 	}
 }
@@ -32,7 +32,7 @@ const getOptions = () => {
 	};
 };
 
-const getEventObject = selector => {
+const getEventObject = (selector) => {
 	return {
 		target: document.querySelector(selector)
 	};

@@ -2,6 +2,7 @@ import CustomSteps from './custom-steps';
 
 export default class StepPlanet extends CustomSteps {
 	// Set public instance fields
+	id = 'planet';
 	route = 'planet';
 	selector = '.step-planet';
 
@@ -10,14 +11,12 @@ export default class StepPlanet extends CustomSteps {
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate () {
-		const listPlanet = this.options.datas.planets.results;
-
+	getTemplate(datas) {
 		/* prettier-ignore */
 		return `<div class="step-planet">
                     <h2 class="title">Choose your favorites planet</h2>
 					<ul class="list">
-						${listPlanet.map((planet, index) => `
+						${datas.map((planet, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
 									${planet.name}
@@ -41,7 +40,7 @@ export default class StepPlanet extends CustomSteps {
 	 *
 	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		// Request datas from the Manager for the previous steps
 		// Method is exposed by the Manager on each class instance
 		const datas = this.requestDatas('people');
@@ -50,5 +49,9 @@ export default class StepPlanet extends CustomSteps {
 		return {
 			canBeDisplayed: !!(datas && datas.people && datas.people.datas)
 		};
+	}
+
+	getStepDatasToRender() {
+		return this.options.datas.planets.results;
 	}
 }

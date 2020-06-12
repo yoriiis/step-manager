@@ -2,6 +2,7 @@ import CustomSteps from './custom-steps';
 
 export default class StepSpecie extends CustomSteps {
 	// Set public instance fields
+	id = 'specie';
 	route = 'specie';
 	selector = '.step-specie';
 	fallbackRoute = 'planet';
@@ -11,14 +12,12 @@ export default class StepSpecie extends CustomSteps {
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate () {
-		const listSpecie = this.options.datas.species.results;
-
+	getTemplate(datas) {
 		/* prettier-ignore */
 		return `<div class="step-specie">
                     <h2 class="title">Choose your favorites specie</h2>
 					<ul class="list">
-						${listSpecie.map((specie, index) => `
+						${datas.map((specie, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
 									${specie.name}
@@ -42,7 +41,7 @@ export default class StepSpecie extends CustomSteps {
 	 *
 	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		// Request datas from the Manager for the previous steps
 		// Method is exposed by the Manager on each class instance
 		const datas = this.requestDatas('people', 'planet');
@@ -54,5 +53,9 @@ export default class StepSpecie extends CustomSteps {
 			canBeDisplayed: !!(isStepPeopleValid && isStepPlanetValid),
 			fallbackRoute: isStepPlanetValid ? this.fallbackRoute : 'people'
 		};
+	}
+
+	getStepDatasToRender() {
+		return this.options.datas.species.results;
 	}
 }

@@ -8,14 +8,14 @@ export default class CustomSteps extends Steps {
 	/**
 	 * Create steps event listeners (common on all specific step)
 	 */
-	addEvents () {
+	addEvents() {
 		// Execute the method of the steps class before this one
 		super.addEvents();
 
 		// Add event listener on all buttons
 		const buttons = [...this.currentStep.querySelectorAll('[data-list-button]')];
-		buttons.forEach(button => {
-			this.onClickOnListButton = e => {
+		buttons.forEach((button) => {
+			this.onClickOnListButton = (e) => {
 				this.clickOnListButton(e);
 			};
 			button.addEventListener('click', this.onClickOnListButton, false);
@@ -27,7 +27,7 @@ export default class CustomSteps extends Steps {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	clickOnListButton (e) {
+	clickOnListButton(e) {
 		e.preventDefault();
 		e.currentTarget.classList.toggle('active');
 
@@ -40,8 +40,8 @@ export default class CustomSteps extends Steps {
 	 *
 	 * @param {Object} datas Datas from the cache
 	 */
-	renderDatasFromCache (datas) {
-		datas.forEach(data =>
+	renderDatasFromCache(datas) {
+		datas.forEach((data) =>
 			this.currentStep
 				.querySelector(`[data-list-button][data-key="${data.key}"]`)
 				.classList.add('active')
@@ -56,13 +56,22 @@ export default class CustomSteps extends Steps {
 	 *
 	 * @returns {Object} Local datas of the step
 	 */
-	getDatasFromStep () {
+	getDatasFromStep() {
 		// Search all active buttons and extract content
-		const datas = [...document.querySelectorAll('[data-list-button].active')].map(item => ({
+		const datas = [...document.querySelectorAll('[data-list-button].active')].map((item) => ({
 			key: item.getAttribute('data-key'),
 			name: item.innerText
 		}));
 
 		return datas.length ? datas : null;
+	}
+
+	onChanged(action) {
+		return new Promise((resolve) => {
+			this.options.element.classList[action === 'destroy' ? 'remove' : 'add']('active');
+			setTimeout(() => {
+				resolve();
+			}, parseFloat(window.getComputedStyle(this.options.element).transitionDuration) * 1000);
+		});
 	}
 }

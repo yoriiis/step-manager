@@ -174,7 +174,7 @@ The HTML element where the manager will build the steps.
 
 JSON datas for all steps.
 
-If steps are build with dynamic contents from an API for example, the manager expose the `datas` fields inside steps with `this.options.datas`.
+If steps are build with dynamic contents from an API for example, the manager expose the `datas` fields inside steps with `this.options.datas`, from the `render` function.
 
 See SWAPI example in the `./examples/` directory for the full implementation.
 

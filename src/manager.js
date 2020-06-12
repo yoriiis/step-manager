@@ -1,5 +1,5 @@
-import Router from "./router";
-import CacheManager from "./cache-manager";
+import Router from './router';
+import CacheManager from './cache-manager';
 
 /**
  * @license MIT
@@ -21,8 +21,8 @@ export default class Manager {
 			element: null,
 			datas: {},
 			steps: [],
-			cacheMethod: "sessionStorage",
-			keyBrowserStorage: "stepManager",
+			cacheMethod: 'sessionStorage',
+			keyBrowserStorage: 'stepManager',
 			onComplete: () => {}
 		};
 
@@ -53,7 +53,7 @@ export default class Manager {
 			defaultRoute: results.defaultRoute,
 			stepsOrder: results.stepsOrder,
 			steps: this.steps,
-			getDatasFromCache: filters => this.CacheManager.getDatasFromCache(filters)
+			getDatasFromCache: (filters) => this.CacheManager.getDatasFromCache(filters)
 		});
 
 		// Initialize the router
@@ -78,21 +78,24 @@ export default class Manager {
 			const currentStep = new Step();
 
 			// Get the step route
-			const currentRoute = currentStep.route;
+			const stepId = currentStep.id;
 
 			// Expose new functions on each steps
 			currentStep.requestOptions = () => this.options;
 			currentStep.requestDatas = (...filters) => this.CacheManager.getDatasFromCache(filters);
 
 			// Store the instance reference in class properties
-			steps[currentRoute] = currentStep;
+			steps[stepId] = currentStep;
 
 			// Set an ordered array with routes name
-			stepsOrder.push(currentRoute);
+			stepsOrder.push({
+				id: stepId,
+				route: currentStep.route
+			});
 
 			// Save the default route
 			if (index === 0) {
-				defaultRoute = currentRoute;
+				defaultRoute = currentStep.route;
 			}
 		});
 
@@ -109,11 +112,11 @@ export default class Manager {
 	 */
 	addEvents() {
 		// Create custom event to listen navigation changes from steps
-		this.eventNextStep = new window.Event("nextStep");
-		this.options.element.addEventListener("nextStep", this.triggerNextStep, false);
+		this.eventNextStep = new window.Event('nextStep');
+		this.options.element.addEventListener('nextStep', this.triggerNextStep, false);
 
-		this.eventNextStep = new window.Event("previousStep");
-		this.options.element.addEventListener("previousStep", this.triggerPreviousStep, false);
+		this.eventNextStep = new window.Event('previousStep');
+		this.options.element.addEventListener('previousStep', this.triggerPreviousStep, false);
 	}
 
 	/**
@@ -151,14 +154,14 @@ export default class Manager {
 	/**
 	 * All steps are complete
 	 */
-	allStepsComplete() {
+	async allStepsComplete() {
 		this.isCompleted = true;
 
 		// Freeze the display to prevent multiple submit
-		this.options.element.classList.add("loading");
+		this.options.element.classList.add('loading');
 
-		this.Router.destroyStep(this.Router.currentRoute);
-		this.Router.setRoute("");
+		await this.Router.destroyStep(this.Router.currentRoute);
+		this.Router.setRoute('');
 		this.destroy();
 
 		// Execute the user callback function if available
@@ -174,8 +177,8 @@ export default class Manager {
 	 * Destroy the manager (event listeners, router)
 	 */
 	destroy() {
-		this.options.element.removeEventListener("nextStep", this.triggerNextStep);
-		this.options.element.removeEventListener("previousStep", this.triggerPreviousStep);
+		this.options.element.removeEventListener('nextStep', this.triggerNextStep);
+		this.options.element.removeEventListener('previousStep', this.triggerPreviousStep);
 
 		this.Router.destroy();
 	}
