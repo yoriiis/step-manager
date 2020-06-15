@@ -8,7 +8,8 @@ export default class Router {
 			defaultRoute: null,
 			stepsOrder: [],
 			steps: {},
-			getDatasFromCache: () => {}
+			getDatasFromCache: () => {},
+			onChange: () => {}
 		};
 
 		// Merge default options with user options
@@ -98,7 +99,7 @@ export default class Router {
 				await this.destroyStep(this.previousRoute);
 
 				// Create the new step on destruction callback
-				this.createStep(this.currentRoute);
+				await this.createStep(this.currentRoute);
 
 				this.stepCreated = true;
 			}
@@ -106,7 +107,7 @@ export default class Router {
 
 		// If destroy method was not called, create the step now
 		if (!this.stepCreated) {
-			this.createStep(this.currentRoute);
+			await this.createStep(this.currentRoute);
 		}
 
 		// Reset the redirect marker
@@ -179,7 +180,7 @@ export default class Router {
 	 *
 	 * @param {String} route Route of the step
 	 */
-	createStep(route) {
+	async createStep(route) {
 		// Get datas from cache before render the step
 		const routeId = this.getRouteId(route);
 		const stepDatas = this.options.getDatasFromCache([routeId]);
@@ -196,7 +197,9 @@ export default class Router {
 			this.applicationReady = true;
 		}
 
-		this.options.steps[routeId].onChanged('create');
+		if (typeof this.options.onChange === 'function') {
+			await this.options.onChange('create');
+		}
 	}
 
 	/**
@@ -207,7 +210,10 @@ export default class Router {
 	async destroyStep(route) {
 		const routeId = this.getRouteId(route);
 
-		await this.options.steps[routeId].onChanged('destroy');
+		// await this.options.steps[routeId].onChanged('destroy');
+		if (typeof this.options.onChange === 'function') {
+			await this.options.onChange('destroy');
+		}
 
 		// Call the destroy method of the step
 		this.options.steps[routeId].destroy();

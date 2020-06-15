@@ -144,10 +144,4 @@ export default class Steps {
 	removeEvents() {
 		this.currentStep.removeEventListener('click', this.clickOnCurrentStep);
 	}
-
-	onChanged(action) {
-		return new Promise((resolve) => {
-			resolve();
-		});
-	}
 }

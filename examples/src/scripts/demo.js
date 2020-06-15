@@ -38,10 +38,11 @@ const getDatas = async function() {
 const init = async function() {
 	// Get datas from SWAPI
 	const datas = await getDatas();
+	const stepsElement = document.querySelector('#steps');
 
 	// Instanciate the Manager
 	const manager = new Manager({
-		element: document.querySelector('#steps'),
+		element: stepsElement,
 		datas: datas,
 		steps: [StepPeople, StepPlanet, StepSpecie],
 		onComplete: (datas) => {
@@ -51,6 +52,14 @@ const init = async function() {
 				null,
 				2
 			)}</pre>`;
+		},
+		onChange: async function(action) {
+			return new Promise((resolve) => {
+				stepsElement.classList[action === 'destroy' ? 'remove' : 'add']('active');
+				setTimeout(() => {
+					resolve();
+				}, parseFloat(window.getComputedStyle(stepsElement).transitionDuration) * 1000);
+			});
 		}
 	});
 

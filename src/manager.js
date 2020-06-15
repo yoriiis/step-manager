@@ -23,7 +23,8 @@ export default class Manager {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onComplete: () => {}
+			onComplete: () => {},
+			onChange: () => {}
 		};
 
 		// Merge default options with user options
@@ -53,6 +54,7 @@ export default class Manager {
 			defaultRoute: results.defaultRoute,
 			stepsOrder: results.stepsOrder,
 			steps: this.steps,
+			onChange: this.options.onChange,
 			getDatasFromCache: (filters) => this.CacheManager.getDatasFromCache(filters)
 		});
 
@@ -127,12 +129,14 @@ export default class Manager {
 	triggerNextStep(e) {
 		// Check if steps are completed
 		if (!this.isCompleted) {
+			const currentRouteId = this.Router.getRouteId(this.Router.currentRoute);
+
 			// Get datas from the current step
-			const stepDatas = this.steps[this.Router.currentRoute].getDatasFromStep();
+			const stepDatas = this.steps[currentRouteId].getDatasFromStep();
 
 			// Update cache with datas
 			this.CacheManager.setDatasToCache({
-				id: this.steps[this.Router.currentRoute].id,
+				id: currentRouteId,
 				datas: stepDatas
 			});
 
@@ -160,12 +164,8 @@ export default class Manager {
 		// Freeze the display to prevent multiple submit
 		this.options.element.classList.add('loading');
 
-		await this.Router.destroyStep(this.Router.currentRoute);
-		this.Router.setRoute('');
-		this.destroy();
-
 		// Execute the user callback function if available
-		if (this.options.onComplete instanceof Function) {
+		if (typeof this.options.onComplete === 'function') {
 			this.options.onComplete(this.CacheManager.getDatasFromCache());
 		}
 
@@ -180,6 +180,8 @@ export default class Manager {
 		this.options.element.removeEventListener('nextStep', this.triggerNextStep);
 		this.options.element.removeEventListener('previousStep', this.triggerPreviousStep);
 
+		this.Router.setRoute('');
 		this.Router.destroy();
+		this.options.element.remove();
 	}
 }
