@@ -25,7 +25,10 @@ module.exports = {
 		'no-tabs': 0,
 		'no-console': 0,
 		semi: [1, 'always'],
-		'space-before-function-paren': ['error', 'never']
+		'space-before-function-paren': [
+			'error',
+			{ anonymous: 'never', named: 'never', asyncArrow: 'always' }
+		]
 	},
 
 	globals: {
