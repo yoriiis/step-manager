@@ -331,7 +331,7 @@ __webpack_require__.r(__webpack_exports__);
 /**
  * @license MIT
  * @name StepManager
- * @version 1.1.0
+ * @version 1.2.0
  * @author: Yoriiis aka Joris DANIEL <joris.daniel@gmail.com>
  * @description: StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
  * {@link https://github.com/yoriiis/step-manager}
@@ -350,7 +350,8 @@ class Manager {
       steps: [],
       cacheMethod: 'sessionStorage',
       keyBrowserStorage: 'stepManager',
-      onComplete: () => {}
+      onComplete: () => {},
+      onChange: () => {}
     }; // Merge default options with user options
 
     this.options = Object.assign(defaultOptions, userOptions);
@@ -375,6 +376,7 @@ class Manager {
       defaultRoute: results.defaultRoute,
       stepsOrder: results.stepsOrder,
       steps: this.steps,
+      onChange: this.options.onChange,
       getDatasFromCache: filters => this.CacheManager.getDatasFromCache(filters)
     }); // Initialize the router
 
@@ -445,11 +447,12 @@ class Manager {
   triggerNextStep(e) {
     // Check if steps are completed
     if (!this.isCompleted) {
-      // Get datas from the current step
-      const stepDatas = this.steps[this.Router.currentRoute].getDatasFromStep(); // Update cache with datas
+      const currentRouteId = this.Router.getRouteId(this.Router.currentRoute); // Get datas from the current step
+
+      const stepDatas = this.steps[currentRouteId].getDatasFromStep(); // Update cache with datas
 
       this.CacheManager.setDatasToCache({
-        id: this.steps[this.Router.currentRoute].id,
+        id: currentRouteId,
         datas: stepDatas
       }); // Trigger the next route if available
       // Else, all steps are completed
@@ -472,15 +475,12 @@ class Manager {
    */
 
 
-  async allStepsComplete() {
+  allStepsComplete() {
     this.isCompleted = true; // Freeze the display to prevent multiple submit
 
-    this.options.element.classList.add('loading');
-    await this.Router.destroyStep(this.Router.currentRoute);
-    this.Router.setRoute('');
-    this.destroy(); // Execute the user callback function if available
+    this.options.element.classList.add('loading'); // Execute the user callback function if available
 
-    if (this.options.onComplete instanceof Function) {
+    if (typeof this.options.onComplete === 'function') {
       this.options.onComplete(this.CacheManager.getDatasFromCache());
     } // Clean the cache at the end
 
@@ -495,7 +495,9 @@ class Manager {
   destroy() {
     this.options.element.removeEventListener('nextStep', this.triggerNextStep);
     this.options.element.removeEventListener('previousStep', this.triggerPreviousStep);
+    this.Router.setRoute('');
     this.Router.destroy();
+    this.options.element.remove();
   }
 
 }
@@ -522,7 +524,8 @@ class Router {
       defaultRoute: null,
       stepsOrder: [],
       steps: {},
-      getDatasFromCache: () => {}
+      getDatasFromCache: () => {},
+      onChange: () => {}
     }; // Merge default options with user options
 
     this.options = Object.assign(defaultOptions, userOptions);
@@ -604,14 +607,14 @@ class Router {
         // Destroy the previous step
         await this.destroyStep(this.previousRoute); // Create the new step on destruction callback
 
-        this.createStep(this.currentRoute);
+        await this.createStep(this.currentRoute);
         this.stepCreated = true;
       }
     } // If destroy method was not called, create the step now
 
 
     if (!this.stepCreated) {
-      this.createStep(this.currentRoute);
+      await this.createStep(this.currentRoute);
     } // Reset the redirect marker
 
 
@@ -688,7 +691,7 @@ class Router {
    */
 
 
-  createStep(route) {
+  async createStep(route) {
     // Get datas from cache before render the step
     const routeId = this.getRouteId(route);
     const stepDatas = this.options.getDatasFromCache([routeId]); // Call the render method of the step
@@ -704,7 +707,9 @@ class Router {
       this.applicationReady = true;
     }
 
-    this.options.steps[routeId].onChanged('create');
+    if (typeof this.options.onChange === 'function') {
+      await this.options.onChange('create');
+    }
   }
   /**
    * Destroy a step
@@ -714,8 +719,12 @@ class Router {
 
 
   async destroyStep(route) {
-    const routeId = this.getRouteId(route);
-    await this.options.steps[routeId].onChanged('destroy'); // Call the destroy method of the step
+    const routeId = this.getRouteId(route); // await this.options.steps[routeId].onChanged('destroy');
+
+    if (typeof this.options.onChange === 'function') {
+      await this.options.onChange('destroy');
+    } // Call the destroy method of the step
+
 
     this.options.steps[routeId].destroy();
   }
@@ -905,6 +914,12 @@ class Steps {
       this.renderDatasFromCache(datas);
     }
   }
+  /**
+   * Get the step datas for the render function
+   *
+   * @returns {null} The default behavior return empty datas
+   */
+
 
   getStepDatasToRender() {
     return null;
@@ -1003,12 +1018,6 @@ class Steps {
 
   removeEvents() {
     this.currentStep.removeEventListener('click', this.clickOnCurrentStep);
-  }
-
-  onChanged(action) {
-    return new Promise(resolve => {
-      resolve();
-    });
   }
 
 }
@@ -1163,15 +1172,24 @@ const getDatas = async function () {
 
 const init = async function () {
   // Get datas from SWAPI
-  const datas = await getDatas(); // Instanciate the Manager
+  const datas = await getDatas();
+  const stepsElement = document.querySelector('#steps'); // Instanciate the Manager
 
   const manager = new _dist_step_manager_js__WEBPACK_IMPORTED_MODULE_3__["Manager"]({
-    element: document.querySelector('#steps'),
+    element: stepsElement,
     datas: datas,
     steps: [_step_people__WEBPACK_IMPORTED_MODULE_0__["default"], _step_planet__WEBPACK_IMPORTED_MODULE_1__["default"], _step_specie__WEBPACK_IMPORTED_MODULE_2__["default"]],
     onComplete: datas => {
       console.log(datas);
       document.querySelector('.container').innerHTML = `<pre>${JSON.stringify(datas, null, 2)}</pre>`;
+    },
+    onChange: async function (action) {
+      return new Promise(resolve => {
+        stepsElement.classList[action === 'destroy' ? 'remove' : 'add']('active');
+        setTimeout(() => {
+          resolve();
+        }, parseFloat(window.getComputedStyle(stepsElement).transitionDuration) * 1000);
+      });
     }
   }); // Initialize and build the steps
 

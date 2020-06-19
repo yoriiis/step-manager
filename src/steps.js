@@ -44,6 +44,11 @@ export default class Steps {
 		}
 	}
 
+	/**
+	 * Get the step datas for the render function
+	 *
+	 * @returns {null} The default behavior return empty datas
+	 */
 	getStepDatasToRender() {
 		return null;
 	}

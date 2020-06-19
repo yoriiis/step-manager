@@ -1,6 +1,6 @@
 # StepManager
 
-![StepManager](https://img.shields.io/badge/step--manager-v1.1.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) [![Coverage Status](https://img.shields.io/coveralls/github/yoriiis/step-manager?style=for-the-badge)](https://coveralls.io/github/yoriiis/step-manager?branch=master)  ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
+![StepManager](https://img.shields.io/badge/step--manager-v1.2.0-ff004b.svg?style=for-the-badge) [![TravisCI](https://img.shields.io/travis/com/yoriiis/step-manager/master?style=for-the-badge)](https://travis-ci.com/yoriiis/step-manager) [![Coverage Status](https://img.shields.io/coveralls/github/yoriiis/step-manager?style=for-the-badge)](https://coveralls.io/github/yoriiis/step-manager?branch=master)  ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
 
 `StepManager` is a library to create **flexible** and **robust** multiple **steps** navigation with hash, **validations**, browser **storage** and **hook** functions.
 
@@ -36,8 +36,9 @@ First, create the steps container with a selector easily accessible.
 
 Next, we will create steps. For our example, two steps `People` and `Planet`. All steps needs inheritance from `Steps` to access hook functions.
 
-```javascript
-// step-people.js
+__step-people.js__
+
+```js
 import { Steps } from "step-manager";
 
 export default class StepPeople extends Steps {
@@ -50,18 +51,25 @@ export default class StepPeople extends Steps {
         };
     }
 
-    getTemplate () {
-        return '<div class="step-people"></div>';
+    getTemplate (datas) {
+        return `<div class="step-people">${datas.title}</div>`;
     }
 
     getDatasFromStep () {
         return {};
     }
+
+    getStepDatasToRender () {
+        return {
+            title: 'people'
+        };
+    }
 }
 ```
 
-```javascript
-// step-planet.js
+__step-planet.js__
+
+```js
 import { Steps } from "step-manager";
 
 export default class StepPlanet extends Steps {
@@ -74,17 +82,29 @@ export default class StepPlanet extends Steps {
         };
     }
 
-    getTemplate () {
-        return '<div class="step-planet"></div>';
+    getTemplate (datas) {
+        return `<div class="step-planet">${datas.planet}</div>`;
     }
 
     getDatasFromStep () {
         return {};
     }
+
+    getStepDatasToRender () {
+        return {
+            title: 'planet'
+        };
+    }
 }
 ```
 
 The inheritance of the `Steps` class expose following class fields:
+
+#### `id`
+
+`String`
+
+The route identifier, an alias to used inside the app instead of the route.
 
 #### `route`
 
@@ -137,6 +157,12 @@ The function return the template of the step. Step can access the manager option
 
 The function allows to extract step datas to save in the browser storage and persist during the navigation.
 
+#### `getStepDatasToRender`
+
+`Function`
+
+TODO
+
 ### Manager
 
 Now steps are created, we will create the manager to manage all these steps.
@@ -154,6 +180,9 @@ const manager = new Manager({
         // All steps are completed
         // All steps datas are available with the `datas` parameter
         // Call the function to save datas as you want
+    },
+    onChange: action => {
+        // TODO
     }
 });
 
@@ -197,6 +226,12 @@ The unique storages key to store datas in the browser storage.
 The function is called when all steps are completed. The function expose as parameter `datas` variable with all steps datas combined in a object.
 
 Feel free to call an API to save datas, redirect the user or whatever.
+
+#### `onChange`
+
+`Function`
+
+TODO
 
 ## Available methods
 

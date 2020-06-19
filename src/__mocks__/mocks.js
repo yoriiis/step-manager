@@ -4,7 +4,7 @@
  * @param {Class} manager Instance of manager
  * @param {Object} result Object with steps instance, steps order and default route
  */
-export function mockAnalyzeSteps (manager, result) {
+export function mockAnalyzeSteps(manager, result) {
 	manager.analyzeSteps = jest.fn().mockImplementation(() => {
 		return result;
 	});
@@ -16,7 +16,7 @@ export function mockAnalyzeSteps (manager, result) {
  * @param {Class} manager Instance of manager
  * @param {Boolean} triggerNext Status of the return of the function
  */
-export function mockRouter (manager, { triggerNext = true } = {}) {
+export function mockRouter(manager, { triggerNext = true, routeId = '' } = {}) {
 	manager.Router = {
 		init: jest.fn(),
 		currentRoute: 'people',
@@ -24,7 +24,8 @@ export function mockRouter (manager, { triggerNext = true } = {}) {
 		triggerPrevious: jest.fn(),
 		destroy: jest.fn(),
 		setRoute: jest.fn(),
-		destroyStep: jest.fn()
+		destroyStep: jest.fn(),
+		getRouteId: jest.fn().mockReturnValue(routeId)
 	};
 }
 
@@ -34,7 +35,7 @@ export function mockRouter (manager, { triggerNext = true } = {}) {
  * @param {Class} manager Instance of manager
  * @param {Boolean} getDatasFromCache Status of the return of the function
  */
-export function mockCacheManager (manager, { getDatasFromCache = true } = {}) {
+export function mockCacheManager(manager, { getDatasFromCache } = {}) {
 	manager.CacheManager = {
 		getDatasFromCache: jest.fn().mockImplementation(() => getDatasFromCache),
 		removeDatasFromCache: jest.fn(),
@@ -47,19 +48,19 @@ export function mockCacheManager (manager, { getDatasFromCache = true } = {}) {
  *
  * @return {Object} Object implementation of browser storage
  */
-export function mockStorage () {
+export function mockStorage() {
 	let store = {};
 	return {
-		getItem (key) {
+		getItem(key) {
 			return store[key] || null;
 		},
-		setItem (key, value) {
+		setItem(key, value) {
 			store[key] = value.toString();
 		},
-		removeItem (key) {
+		removeItem(key) {
 			delete store[key];
 		},
-		clear () {
+		clear() {
 			store = {};
 		}
 	};

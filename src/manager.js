@@ -4,7 +4,7 @@ import CacheManager from './cache-manager';
 /**
  * @license MIT
  * @name StepManager
- * @version 1.1.0
+ * @version 1.2.0
  * @author: Yoriiis aka Joris DANIEL <joris.daniel@gmail.com>
  * @description: StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
  * {@link https://github.com/yoriiis/step-manager}
@@ -158,7 +158,7 @@ export default class Manager {
 	/**
 	 * All steps are complete
 	 */
-	async allStepsComplete() {
+	allStepsComplete() {
 		this.isCompleted = true;
 
 		// Freeze the display to prevent multiple submit
