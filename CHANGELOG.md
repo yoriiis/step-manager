@@ -2,7 +2,16 @@
 
 ## 1.2.0
 
-TODO
+### Updates
+
+* Add the `onChange` function for specific behavior on the step changes
+* Replace the `route` by the `routeId` in all storages
+* Replace `Travis` by `GitHub Actions`
+* Update the README
+
+### Updates
+
+* Update the linter (`Stylelint`, `Prettier`)
 
 ## 1.1.0
 
