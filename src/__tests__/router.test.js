@@ -512,8 +512,8 @@ describe('Router isReverseNavigation', () => {
 	});
 
 	it('Should call the isReverseNavigation function with a reverse navigation', () => {
-		router.currentRoute = 'people';
 		router.previousRoute = 'planet';
+		router.currentRoute = 'people';
 		const result = router.isReverseNavigation();
 
 		expect(result).toBeTruthy();

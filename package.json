@@ -13,6 +13,9 @@
 		"localstorage",
 		"hook functions"
 	],
+	"files": [
+		"dist/step-manager.js"
+	],
 	"homepage": "https://github.com/yoriiis/step-manager",
 	"bugs": "https://github.com/yoriiis/step-manager/issues",
 	"repository": "https://github.com/yoriiis/step-manager.git",
@@ -20,11 +23,11 @@
 	"main": "dist/step-manager.js",
 	"scripts": {
 		"build": "rm -rf ./dist/ && webpack --mode=production",
-		"build:example": "rm -rf ./examples/dist/ && webpack --config=./examples/webpack.config.js --mode=production",
+		"build:example": "rm -rf ./example/dist/ && webpack --config=./example/webpack.config.js --mode=production",
 		"coverage": "npm run test:coverage && cat ./coverage/lcov.info | coveralls",
-		"create:gh-pages": "rm -rf ./gh-pages && mkdir ./gh-pages && cp -r ./examples/dist/. ./gh-pages/dist/ && cp ./examples/index.html ./gh-pages/index.html",
+		"create:gh-pages": "rm -rf ./gh-pages && mkdir ./gh-pages && cp -r ./example/dist/. ./gh-pages/dist/ && cp ./example/index.html ./gh-pages/index.html",
 		"start": "rm -rf ./dist/ && webpack --mode=development",
-		"start:example": "rm -rf ./examples/dist/ && webpack --config=./examples/webpack.config.js --mode=development",
+		"start:example": "rm -rf ./example/dist/ && webpack --config=./example/webpack.config.js --mode=development",
 		"test": "jest",
 		"test:coverage": "jest --coverage",
 		"test:eslint": "eslint -c ./.eslintrc.js .",

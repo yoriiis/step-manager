@@ -79,7 +79,10 @@ const getOptions = () => {
 		datas: datas,
 		steps: [StepPeople, StepPlanet],
 		onComplete: (datas) => {
-			console.log('complete!');
+			console.log('onComplete');
+		},
+		onChange: (action) => {
+			console.log('onChange', action);
 		}
 	};
 };

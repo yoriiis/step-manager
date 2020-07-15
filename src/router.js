@@ -260,7 +260,7 @@ export default class Router {
 	isReverseNavigation() {
 		let indexCurrentRoute = 0;
 		let indexPreviousRoute = 0;
-		console.log(this.previousRoute);
+
 		this.options.stepsOrder.forEach((item, index) => {
 			if (item.route === this.currentRoute) {
 				indexCurrentRoute = index;
