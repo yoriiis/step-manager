@@ -55,6 +55,11 @@ export default class StepSpecie extends CustomSteps {
 		};
 	}
 
+	/**
+	 * Get the step datas for the render function
+	 *
+	 * @returns {Object} Step datas
+	 */
 	getStepDatasToRender() {
 		return this.options.datas.species.results;
 	}

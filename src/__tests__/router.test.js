@@ -502,6 +502,24 @@ describe('Router triggerPrevious', () => {
 	});
 });
 
+describe('Router isReverseNavigation', () => {
+	it('Should call the isReverseNavigation function with a normal navigation', () => {
+		router.previousRoute = 'people';
+		router.currentRoute = 'planet';
+		const result = router.isReverseNavigation();
+
+		expect(result).toBeFalsy();
+	});
+
+	it('Should call the isReverseNavigation function with a reverse navigation', () => {
+		router.currentRoute = 'people';
+		router.previousRoute = 'planet';
+		const result = router.isReverseNavigation();
+
+		expect(result).toBeTruthy();
+	});
+});
+
 describe('Router getPreviousRoute', () => {
 	it('Should call the getPreviousRoute function', () => {
 		const result = router.getPreviousRoute(event);

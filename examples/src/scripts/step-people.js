@@ -45,6 +45,11 @@ export default class StepPeople extends CustomSteps {
 		};
 	}
 
+	/**
+	 * Get the step datas for the render function
+	 *
+	 * @returns {Object} Step datas
+	 */
 	getStepDatasToRender() {
 		return this.options.datas.people.results;
 	}

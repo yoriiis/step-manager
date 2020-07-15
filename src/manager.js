@@ -54,8 +54,8 @@ export default class Manager {
 			defaultRoute: results.defaultRoute,
 			stepsOrder: results.stepsOrder,
 			steps: this.steps,
-			onChange: this.options.onChange,
-			getDatasFromCache: (filters) => this.CacheManager.getDatasFromCache(filters)
+			getDatasFromCache: (filters) => this.CacheManager.getDatasFromCache(filters),
+			onChange: this.options.onChange
 		});
 
 		// Initialize the router

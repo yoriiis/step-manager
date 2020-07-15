@@ -210,7 +210,6 @@ export default class Router {
 	async destroyStep(route) {
 		const routeId = this.getRouteId(route);
 
-		// await this.options.steps[routeId].onChanged('destroy');
 		if (typeof this.options.onChange === 'function') {
 			await this.options.onChange('destroy');
 		}
@@ -251,6 +250,27 @@ export default class Router {
 
 		const previousRoute = this.getPreviousStepRoute(this.previousRoute);
 		this.setRoute(previousRoute);
+	}
+
+	/**
+	 * Check if the steps navigation is reversed (1, 2, 3 or 3, 2, 1)
+	 *
+	 * @returns {Boolean} Is the navigation reversed
+	 */
+	isReverseNavigation() {
+		let indexCurrentRoute = 0;
+		let indexPreviousRoute = 0;
+		console.log(this.previousRoute);
+		this.options.stepsOrder.forEach((item, index) => {
+			if (item.route === this.currentRoute) {
+				indexCurrentRoute = index;
+			}
+			if (item.route === this.previousRoute) {
+				indexPreviousRoute = index;
+			}
+		});
+
+		return indexCurrentRoute < indexPreviousRoute;
 	}
 
 	/**

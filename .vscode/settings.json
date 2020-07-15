@@ -31,10 +31,5 @@
 		"source.fixAll.eslint": true,
 		"source.fixAll.stylelint": true
 	},
-	"eslint.workingDirectories": [
-		"./programme-tv.net/front",
-		"./programme-tv.net/frontCTV",
-		"./programme-tv.net/frontTLS"
-	],
 	"editor.rulers": [100]
 }

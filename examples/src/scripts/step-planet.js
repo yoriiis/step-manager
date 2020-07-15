@@ -51,6 +51,11 @@ export default class StepPlanet extends CustomSteps {
 		};
 	}
 
+	/**
+	 * Get the step datas for the render function
+	 *
+	 * @returns {Object} Step datas
+	 */
 	getStepDatasToRender() {
 		return this.options.datas.planets.results;
 	}

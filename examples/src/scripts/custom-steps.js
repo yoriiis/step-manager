@@ -65,13 +65,4 @@ export default class CustomSteps extends Steps {
 
 		return datas.length ? datas : null;
 	}
-
-	onChanged(action) {
-		return new Promise((resolve) => {
-			this.options.element.classList[action === 'destroy' ? 'remove' : 'add']('active');
-			setTimeout(() => {
-				resolve();
-			}, parseFloat(window.getComputedStyle(this.options.element).transitionDuration) * 1000);
-		});
-	}
 }
