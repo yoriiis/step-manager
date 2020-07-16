@@ -38,12 +38,27 @@ jobs:
       - name: Test Markdown
         run: npm run test:markdown
 
+      - name: Test
+        run: npm run test
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v1
+        if: github.ref == 'refs/heads/master' &&
+            github.repository == 'yoriiis/step-manager' &&
+            github.event_name != 'pull_request'
+        with:
+          name: coverage
+          path: coverage
+
       - name: Build
         run: |
           npm run build
           npm run build:example
 
-      - name: Upload docs artifacts
+      - name: Create GitHub Pages
+        run: npm run create:gh-pages
+
+      - name: Upload GitHub Pages artifacts
         uses: actions/upload-artifact@v1
         if: github.ref == 'refs/heads/master' &&
             github.repository == 'yoriiis/step-manager' &&
@@ -63,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download docs artifacts
+      - name: Download GitHub Pages artifacts
         uses: actions/download-artifact@v1
         with:
           name: demo
@@ -77,3 +92,28 @@ jobs:
           commit_message: "Deploy to GitHub pages"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  deploy-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build
+    if: success() &&
+        github.ref == 'refs/heads/master' &&
+        github.repository == 'yoriiis/step-manager' &&
+        github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: coverage
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.14.0
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
