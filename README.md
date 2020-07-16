@@ -176,7 +176,7 @@ The function allows to extract step datas to save in the browser storage and per
 
 ### Manager
 
-Now the steps are created, we will create the manager to manage all these steps.
+Now the steps are created, we will create the Manager to manage all these steps.
 
 ```javascript
 import StepPeople from "./step-people";
@@ -240,9 +240,25 @@ You can call an API to save the datas or redirect the user.
 
 #### `onChange`
 
-`Function`
+`Function -> Promise`
 
-The function allows to add specific behaviors during the step changes. The function is called 2 times per step change, on the `destroy` and `create` events. The function exposes the `action` variable as parameter according to the state (`destroy` or `create`).
+The function allows to add a specific behavior during the step changes. The function is called 2 times per step change, on the `destroy` event and on the `create` event. The function exposes the `action` variable as parameter according to the state (`destroy` or `create`).
+
+**The function need to return a Promise resolved as the example below**. The Promise allows to add any behavior during the step changes, like a transition or an XHR.
+
+```js
+new Manager({
+    onChange: action => {
+        return new Promise(resolve => {
+            // Add here the scripts to be executed on the step changes
+            // The setTimeout is an example to add a fake delay during the change of steps
+            setTimeout(() => {
+                resolve();
+            }, 1000);
+        });
+    }
+});
+```
 
 See the SWAPI example in the `./example/` directory for the transition behavior on the step changes.
 
