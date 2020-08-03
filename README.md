@@ -20,7 +20,7 @@ yarn add --dev step-manager
 
 Online demo is available on [yoriiis.github.io/step-manager](https://yoriiis.github.io/step-manager)
 
-The project includes also the example of the `StepManager` implementation in the directory `./example/`.
+The project also includes an example of an implementation of `StepManager` in the directory `./example/`.
 
 ## How it works
 
@@ -100,24 +100,24 @@ export default class StepPlanet extends Steps {
 }
 ```
 
-The manager exposed his options to each steps, they can access it with `this.options`.
-The inheritance of the `Steps` class exposes following the class fields:
+The manager exposes its options on every step. Options can be accessed with `this.options`.
+The inheritance of the `Steps` class exposes the following class fields:
 
 #### `id`
 
 `String`
 
-The route identifier, an alias to used inside the app instead of the route.
+The route identifier is an alias to be used inside the app instead of the route.
 
-_The parameter is a public instance fields._
+_The parameter is a public instance field._
 
 #### `route`
 
 `String`
 
-The route for the step navigation. `StepManager` use hash for steps navigation (`#people`).
+The route for the step navigation. `StepManager` uses hashes for steps navigation (`#people`).
 
-_The parameter is a public instance fields._
+_The parameter is a public instance field._
 
 #### `selector`
 
@@ -125,15 +125,15 @@ _The parameter is a public instance fields._
 
 The CSS selector used in the template to identify the step.
 
-_The parameter is a public instance fields._
+_The parameter is a public instance field._
 
 #### `optionalStep`
 
 `Boolean`
 
-Declare if the step is optional and can be submit without validation. The validation is set on the `canTheStepBeDisplayed` function.
+To declare if the step is optional and can be submit without validation. The validation is set on the `canTheStepBeDisplayed` function.
 
-_The parameter is a public instance fields and is optional._
+_The parameter is a public instance field and is optional._
 
 #### `canTheStepBeDisplayed`
 
@@ -147,7 +147,7 @@ return {
 }
 ```
 
-If the step can't be displayed, the manager will redirect to the route of the first step depending of the steps order. The optional key `fallbackRoute` allows to override this behavior.
+If the step can't be displayed, the manager will redirect to the route of the first step depending on the steps' order. The optional key `fallbackRoute` allows to override this behavior.
 
 ```javascript
 return {
@@ -172,11 +172,11 @@ The function returns the data for the template.
 
 `Function`
 
-The function allows to extract step datas to save in the browser storage and persist during the navigation.
+The function allows to extract step data to save in the browser storage and persist during the navigation.
 
 ### Manager
 
-Now the steps are created, we will create the Manager to manage all these steps.
+Now that the steps are created, we will create the Manager to manage them.
 
 ```javascript
 import StepPeople from "./step-people";
@@ -206,9 +206,9 @@ The HTML element where the manager will build the steps.
 
 `Object`
 
-The datas for all the steps stored in a JSON. The object key need to match with the route id declare in each steps.
+The data for all the steps are stored in a JSON. The object key needs to match with the route id declared in each step.
 
-If the steps are build with dynamic contents from an API for example, the manager exposes the `datas` fields inside the steps with `this.options.datas`, from the `render` function.
+If the steps are built with dynamic content from an API for example, the manager exposes the `datas` fields inside the steps with `this.options.datas`, from the `render` function.
 
 See the SWAPI example in the `./example/` directory for the full implementation.
 
@@ -216,7 +216,7 @@ See the SWAPI example in the `./example/` directory for the full implementation.
 
 `Array`
 
-The array of the steps.
+The array of steps.
 
 #### `cacheMethod`
 
@@ -228,15 +228,15 @@ The browser storage method used by the manager (`sessionStorage` or `localStorag
 
 `String`
 
-The unique storage key to store the datas in the browser storage.
+The unique storage key to store the data in the browser storage.
 
 #### `onComplete`
 
 `Function`
 
-The function is called when all the steps are completed. The function exposes as parameter the `datas` variable with all the steps datas combined in a object. The key corresponds to each route id.
+The function is called when all the steps are completed. The function exposes as parameter the `datas` variable with all the steps data combined in a object. The key corresponds to each route id.
 
-You can call an API to save the datas or redirect the user.
+You can call an API to save the data or redirect the user.
 
 #### `onChange`
 
@@ -244,7 +244,7 @@ You can call an API to save the datas or redirect the user.
 
 The function allows to add a specific behavior during the step changes. The function is called 2 times per step change, on the `destroy` event and on the `create` event. The function exposes the `action` variable as parameter according to the state (`destroy` or `create`).
 
-**The function need to return a Promise resolved as the example below**. The Promise allows to add any behavior during the step changes, like a transition or an XHR.
+**The function needs to return a Promise resolved as the example below**. The Promise allows to add any behavior during the step changes, like a transition or an XHR.
 
 ```js
 new Manager({
@@ -268,7 +268,7 @@ The `Manager` exposes following functions.
 
 ### Init
 
-The `init()` function initialize the manager and build the steps.
+The `init()` function initializes the manager and builds the steps.
 
 ```javascript
 manager.init();
@@ -276,7 +276,7 @@ manager.init();
 
 ### Destroy
 
-The `destroy()` function destroy the event listeners and the HTML.
+The `destroy()` function destroys the event listeners and the HTML.
 
 ```javascript
 manager.destroy();
@@ -284,7 +284,7 @@ manager.destroy();
 
 ### isReverseNavigation
 
-The `isReverseNavigation()` function check if the navigation is reversed. The function can be called inside the `onChange` function.
+The `isReverseNavigation()` function checks if the navigation is reversed. The function can be called inside the `onChange` function.
 
 ```javascript
 manager.Router.isReverseNavigation()
@@ -292,7 +292,7 @@ manager.Router.isReverseNavigation()
 
 ### getRouteId
 
-The `getRouteId()` function returns the `routeId` from the `route`.
+The `getRouteId()` function returns the `routeId` of the `route`.
 
 ```javascript
 manager.Router.getRouteId()
@@ -308,6 +308,6 @@ manager.Router.currentRoute
 
 ## Licence
 
-`StepManager` and his documentation are licensed under the [MIT License](http://opensource.org/licenses/MIT).
+`StepManager` and its documentation are licensed under the [MIT License](http://opensource.org/licenses/MIT).
 
 Created with ♥ by [@yoriiis](http://github.com/yoriiis).

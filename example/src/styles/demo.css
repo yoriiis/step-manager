@@ -3,6 +3,7 @@
 	--greyLight: #c8c8c8;
 	--greyDark: #272b30;
 	--yellow: #ffe300;
+	--pink: #e83e8c;
 }
 
 body {
@@ -59,7 +60,7 @@ body {
 }
 
 pre {
-	color: #e83e8c;
+	color: var(--pink);
 }
 
 .btn {
