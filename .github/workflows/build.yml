@@ -82,6 +82,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: demo
+          path: gh-pages
 
       - name: Deploy to Github Pages
         uses: crazy-max/ghaction-github-pages@v1
