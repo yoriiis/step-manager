@@ -2,13 +2,14 @@ export default class Router {
 	/**
 	 * @param {options}
 	 */
-	constructor (options) {
+	constructor(options) {
 		const userOptions = options || {};
 		const defaultOptions = {
 			defaultRoute: null,
 			stepsOrder: [],
 			steps: {},
-			getDatasFromCache: () => {}
+			getDatasFromCache: () => {},
+			onChange: () => {}
 		};
 
 		// Merge default options with user options
@@ -25,7 +26,7 @@ export default class Router {
 	/**
 	 * Initialize the router
 	 */
-	init () {
+	init() {
 		this.addEvents();
 
 		// Get current route
@@ -48,7 +49,7 @@ export default class Router {
 	 * Create router event listeners
 	 * All listeners are created on class properties to facilitate the deletion of events
 	 */
-	addEvents () {
+	addEvents() {
 		// Create the hash changed event of all the application
 		window.addEventListener('hashchange', this.hashChanged, false);
 	}
@@ -58,7 +59,7 @@ export default class Router {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	hashChanged (e) {
+	hashChanged(e) {
 		// Get the current route
 		const route = this.getRoute();
 
@@ -70,8 +71,11 @@ export default class Router {
 
 		this.currentRoute = route;
 
-		// The step can be dislayed
-		this.stepCanBeDisplayed(e, datas.canBeDisplayed ? datas.fallbackRoute : null);
+		if (datas.canBeDisplayed) {
+			this.stepCanBeDisplayed(e, datas.fallbackRoute);
+		} else {
+			this.stepCantBeDisplayed(e, datas.fallbackRoute);
+		}
 	}
 
 	/**
@@ -79,9 +83,9 @@ export default class Router {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	stepCanBeDisplayed (e) {
+	async stepCanBeDisplayed(e) {
 		// Event listener exist when user click on next step button
-		// Event listener doesn't exist when setRoute is called manually
+		// Event listener does not exist when setRoute is called manually
 		if (e) {
 			// Get the previous route
 			this.previousRoute = this.stepRedirected.redirect
@@ -92,10 +96,10 @@ export default class Router {
 			// Prevent destruction when previousRoute does not exist or when user is redirected
 			if (this.previousRoute) {
 				// Destroy the previous step
-				this.destroyStep(this.previousRoute);
+				await this.destroyStep(this.previousRoute);
 
 				// Create the new step on destruction callback
-				this.createStep(this.currentRoute);
+				await this.createStep(this.currentRoute);
 
 				this.stepCreated = true;
 			}
@@ -103,7 +107,7 @@ export default class Router {
 
 		// If destroy method was not called, create the step now
 		if (!this.stepCreated) {
-			this.createStep(this.currentRoute);
+			await this.createStep(this.currentRoute);
 		}
 
 		// Reset the redirect marker
@@ -119,7 +123,7 @@ export default class Router {
 	 * @param {Object} e Event listener datas
 	 * @param {String} fallbackRoute The fallback route of the step
 	 */
-	stepCantBeDisplayed (e, fallbackRoute) {
+	stepCantBeDisplayed(e, fallbackRoute) {
 		this.stepRedirected = {
 			redirect: true,
 			previousRoute: this.getPreviousRoute(e)
@@ -142,21 +146,24 @@ export default class Router {
 	 *
 	 * @returns {Object} Status of the step render
 	 */
-	checkIfTheStepCanBeDisplay ({ route, event }) {
+	checkIfTheStepCanBeDisplay({ route, event }) {
+		const routeId = this.getRouteId(route);
+
 		// Check the validity of the route
-		if (this.options.steps[route]) {
+		if (this.options.steps[routeId]) {
 			// Call the verification method of the step
 			// The step itself knows if it can be rendered
-			const datas = this.options.steps[route].canTheStepBeDisplayed();
+			const datas = this.options.steps[routeId].canTheStepBeDisplayed();
 			return datas;
 		} else {
 			let fallbackRoute = this.options.defaultRoute;
 
 			// Get fallback route from previous route if exist
 			const previousRoute = this.getPreviousRoute(event);
+			const previousRouteId = this.getRouteId(previousRoute);
 			if (previousRoute) {
-				if (this.options.steps[previousRoute].fallbackRoute) {
-					fallbackRoute = this.options.steps[previousRoute].fallbackRoute;
+				if (this.options.steps[previousRouteId].fallbackRoute) {
+					fallbackRoute = this.options.steps[previousRouteId].fallbackRoute;
 				}
 			}
 
@@ -173,20 +180,25 @@ export default class Router {
 	 *
 	 * @param {String} route Route of the step
 	 */
-	createStep (route) {
+	async createStep(route) {
 		// Get datas from cache before render the step
-		const stepDatas = this.options.getDatasFromCache([route]);
+		const routeId = this.getRouteId(route);
+		const stepDatas = this.options.getDatasFromCache([routeId]);
 
 		// Call the render method of the step
 		if (stepDatas) {
-			this.options.steps[route].render(stepDatas[route].datas);
+			this.options.steps[routeId].render(stepDatas[routeId].datas);
 		} else {
-			this.options.steps[route].render();
+			this.options.steps[routeId].render();
 		}
 
 		// Prevent step created before application ready
 		if (!this.applicationReady) {
 			this.applicationReady = true;
+		}
+
+		if (typeof this.options.onChange === 'function') {
+			await this.options.onChange('create');
 		}
 	}
 
@@ -195,9 +207,15 @@ export default class Router {
 	 *
 	 * @param {String} route Route of the step
 	 */
-	destroyStep (route) {
+	async destroyStep(route) {
+		const routeId = this.getRouteId(route);
+
+		if (typeof this.options.onChange === 'function') {
+			await this.options.onChange('destroy');
+		}
+
 		// Call the destroy method of the step
-		this.options.steps[route].destroy();
+		this.options.steps[routeId].destroy();
 	}
 
 	/**
@@ -205,7 +223,7 @@ export default class Router {
 	 *
 	 * @returns {Boolean} Is the next step exist?
 	 */
-	triggerNext () {
+	triggerNext() {
 		this.reverseNavigation = false;
 
 		// Store the current route as the previous route because the route hasn't changed yet
@@ -224,7 +242,7 @@ export default class Router {
 	/**
 	 * Trigger previous step navigation
 	 */
-	triggerPrevious () {
+	triggerPrevious() {
 		this.reverseNavigation = true;
 
 		// Store the current route as the previous route because the route hasn't changed yet
@@ -235,13 +253,46 @@ export default class Router {
 	}
 
 	/**
+	 * Check if the steps navigation is reversed (1, 2, 3 or 3, 2, 1)
+	 *
+	 * @returns {Boolean} Is the navigation reversed
+	 */
+	isReverseNavigation() {
+		let indexCurrentRoute = 0;
+		let indexPreviousRoute = 0;
+
+		this.options.stepsOrder.forEach((item, index) => {
+			if (item.route === this.currentRoute) {
+				indexCurrentRoute = index;
+			}
+			if (item.route === this.previousRoute) {
+				indexPreviousRoute = index;
+			}
+		});
+
+		return indexCurrentRoute < indexPreviousRoute;
+	}
+
+	/**
+	 * Get route id from the step
+	 *
+	 * @param {String} route Route
+	 *
+	 * @returns {String} Route id
+	 */
+	getRouteId(route) {
+		const routeStep = this.options.stepsOrder.find((step) => step.route === route);
+		return routeStep ? routeStep.id : null;
+	}
+
+	/**
 	 * Get the previous route
 	 *
 	 * @param {Object} event Event listener datas
 	 *
 	 * @returns {String} Previous route
 	 */
-	getPreviousRoute (e) {
+	getPreviousRoute(e) {
 		return e && e.oldURL ? e.oldURL.split('#')[1] : null;
 	}
 
@@ -253,9 +304,9 @@ export default class Router {
 	 *
 	 * @returns {String} Previous route or "end"
 	 */
-	getPreviousStepRoute (route) {
+	getPreviousStepRoute(route) {
 		const indexCurrentRoute = parseInt(this.getIndexFromRoute(route));
-		const previousStep = this.options.steps[this.options.stepsOrder[indexCurrentRoute - 1]];
+		const previousStep = this.options.stepsOrder[indexCurrentRoute - 1];
 
 		return previousStep ? previousStep.route : this.options.defaultRoute;
 	}
@@ -268,9 +319,9 @@ export default class Router {
 	 *
 	 * @returns {String} Next route or "end"
 	 */
-	getNextStepRoute (route) {
+	getNextStepRoute(route) {
 		const indexCurrentRoute = parseInt(this.getIndexFromRoute(route));
-		const nextStep = this.options.steps[this.options.stepsOrder[indexCurrentRoute + 1]];
+		const nextStep = this.options.stepsOrder[indexCurrentRoute + 1];
 
 		return nextStep ? nextStep.route : 'end';
 	}
@@ -280,9 +331,9 @@ export default class Router {
 	 *
 	 * @returns {Integer} Index of the route
 	 */
-	getIndexFromRoute (route) {
-		return this.options.stepsOrder.findIndex(currentRoute => {
-			return currentRoute === route;
+	getIndexFromRoute(route) {
+		return this.options.stepsOrder.findIndex((step) => {
+			return step.route === route;
 		});
 	}
 
@@ -291,7 +342,7 @@ export default class Router {
 	 *
 	 * @returns {Array} Current route
 	 */
-	getRoute () {
+	getRoute() {
 		return window.location.hash.substr(1);
 	}
 
@@ -300,14 +351,14 @@ export default class Router {
 	 *
 	 * @returns {String} route New value for the route
 	 */
-	setRoute (route) {
+	setRoute(route) {
 		window.location.hash = route;
 	}
 
 	/**
 	 * Destroy the router (event listeners)
 	 */
-	destroy () {
+	destroy() {
 		window.removeEventListener('hashchange', this.hashChanged);
 	}
 }

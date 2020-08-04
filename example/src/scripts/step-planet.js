@@ -1,27 +1,25 @@
 import CustomSteps from './custom-steps';
 
-export default class StepSpecie extends CustomSteps {
+export default class StepPlanet extends CustomSteps {
 	// Set public instance fields
-	route = 'specie';
-	selector = '.step-specie';
-	fallbackRoute = 'planet';
+	id = 'planet';
+	route = 'planet';
+	selector = '.step-planet';
 
 	/**
 	 * Get step template
 	 *
 	 * @returns {Object} Generated HTML for the step
 	 */
-	getTemplate () {
-		const listSpecie = this.options.datas.species.results;
-
+	getTemplate(datas) {
 		/* prettier-ignore */
-		return `<div class="step-specie">
-                    <h2 class="title">Choose your favorites specie</h2>
+		return `<div class="step-planet">
+                    <h2 class="title">Choose your favorites planet</h2>
 					<ul class="list">
-						${listSpecie.map((specie, index) => `
+						${datas.map((planet, index) => `
 							<li class="list-item">
 								<button class="list-button" data-list-button data-key="${index}">
-									${specie.name}
+									${planet.name}
 								</button>
 							</li>
 						`).join('')}
@@ -31,7 +29,7 @@ export default class StepSpecie extends CustomSteps {
 							<button class="btn" data-step-previous>Previous step</button>
 						</li>
 						<li class="nav-item">
-							<button type="submit" class="btn disabled" data-step-next>Submit</button>
+							<button type="submit" class="btn btn disabled" data-step-next>Next step</button>
 						</li>
 					</ul>
                 </div>`;
@@ -42,17 +40,23 @@ export default class StepSpecie extends CustomSteps {
 	 *
 	 * @returns {Object} Status of the render of the step
 	 */
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		// Request datas from the Manager for the previous steps
 		// Method is exposed by the Manager on each class instance
-		const datas = this.requestDatas('people', 'planet');
-		const isStepPeopleValid = datas && datas.people && datas.people.datas;
-		const isStepPlanetValid = datas && datas.planet && datas.planet.datas;
+		const datas = this.requestDatas('people');
 
 		// The step can be displayed if the following conditions are resolved:
 		return {
-			canBeDisplayed: !!(isStepPeopleValid && isStepPlanetValid),
-			fallbackRoute: isStepPlanetValid ? this.fallbackRoute : 'people'
+			canBeDisplayed: !!(datas && datas.people && datas.people.datas)
 		};
+	}
+
+	/**
+	 * Get the step datas for the render function
+	 *
+	 * @returns {Object} Step datas
+	 */
+	getStepDatasToRender() {
+		return this.options.datas.planets.results;
 	}
 }

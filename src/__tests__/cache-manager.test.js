@@ -11,7 +11,7 @@ const getOptions = () => {
 };
 const cacheMethod = getOptions().cacheMethod;
 const keyBrowserStorage = getOptions().keyBrowserStorage;
-const datas = { people: true, planet: false, species: true };
+const datas = { 'id-people': true, 'id-planet': false, 'id-species': true };
 
 const getInstance = () => {
 	return new CacheManager(getOptions());
@@ -70,7 +70,7 @@ describe('CacheManager getDatasFromCache', () => {
 	});
 
 	it('Should call the getDatasFromCache function with filters and datas in cache', () => {
-		const filters = ['people'];
+		const filters = ['id-people'];
 		window[cacheMethod].setItem(keyBrowserStorage, JSON.stringify(datas));
 
 		jest.spyOn(window[cacheMethod], 'getItem');
@@ -88,10 +88,10 @@ describe('CacheManager getDatasFromCache', () => {
 
 describe('CacheManager filterDatas', () => {
 	it('Should call the filterDatas function', () => {
-		expect(cacheManager.filterDatas(['people'], datas)).toEqual({ people: true });
-		expect(cacheManager.filterDatas(['people', 'species'], datas)).toEqual({
-			people: true,
-			species: true
+		expect(cacheManager.filterDatas(['id-people'], datas)).toEqual({ 'id-people': true });
+		expect(cacheManager.filterDatas(['id-people', 'id-species'], datas)).toEqual({
+			'id-people': true,
+			'id-species': true
 		});
 		expect(cacheManager.filterDatas(['fake'], datas)).toEqual(null);
 		expect(cacheManager.filterDatas([], datas)).toEqual(null);
@@ -100,18 +100,18 @@ describe('CacheManager filterDatas', () => {
 
 describe('CacheManager setDatasToCache', () => {
 	it('Should call the setDatasToCache function', () => {
-		const route = 'people';
+		const id = 'id-people';
 
 		cacheManager.getDatasFromCache = jest.fn();
 		jest.spyOn(window[cacheMethod], 'setItem');
 
-		cacheManager.setDatasToCache({ route, datas: datas.people });
+		cacheManager.setDatasToCache({ id, datas: datas['id-people'] });
 
 		expect(cacheManager.getDatasFromCache).toHaveBeenCalled();
 		expect(window[cacheMethod].setItem).toHaveBeenCalledWith(
 			cacheManager.options.keyBrowserStorage,
 			JSON.stringify({
-				[route]: {
+				[id]: {
 					datas: true
 				}
 			})
@@ -121,8 +121,8 @@ describe('CacheManager setDatasToCache', () => {
 	it('Should call the setDatasToCache function with already datas in cache', () => {
 		const route = 'planet';
 		const firstDatas = {
-			people: {
-				datas: datas.people
+			'id-people': {
+				datas: datas['id-people']
 			}
 		};
 		const result = firstDatas;

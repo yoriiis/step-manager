@@ -1,3 +1,3 @@
-MD013: false     # Line length
+MD013: false     # line-length
 MD024: false     # Multiple headers with the same content
-MD033: false     # Inline HTML
+MD036: false     # no-emphasis-as-heading

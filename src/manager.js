@@ -4,7 +4,7 @@ import CacheManager from './cache-manager';
 /**
  * @license MIT
  * @name StepManager
- * @version 1.1.0
+ * @version 1.2.0
  * @author: Yoriiis aka Joris DANIEL <joris.daniel@gmail.com>
  * @description: StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
  * {@link https://github.com/yoriiis/step-manager}
@@ -15,7 +15,7 @@ export default class Manager {
 	/**
 	 * @param {options}
 	 */
-	constructor (options) {
+	constructor(options) {
 		const userOptions = options || {};
 		const defaultOptions = {
 			element: null,
@@ -23,7 +23,8 @@ export default class Manager {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onComplete: () => {}
+			onComplete: () => {},
+			onChange: () => {}
 		};
 
 		// Merge default options with user options
@@ -38,7 +39,7 @@ export default class Manager {
 	/**
 	 * Function to initialize the Manager
 	 */
-	init () {
+	init() {
 		this.addEvents();
 
 		const results = this.analyzeSteps();
@@ -53,7 +54,8 @@ export default class Manager {
 			defaultRoute: results.defaultRoute,
 			stepsOrder: results.stepsOrder,
 			steps: this.steps,
-			getDatasFromCache: filters => this.CacheManager.getDatasFromCache(filters)
+			getDatasFromCache: (filters) => this.CacheManager.getDatasFromCache(filters),
+			onChange: this.options.onChange
 		});
 
 		// Initialize the router
@@ -67,7 +69,7 @@ export default class Manager {
 	 *
 	 * @returns {Object} Object with steps instance, steps order and default route
 	 */
-	analyzeSteps () {
+	analyzeSteps() {
 		const steps = {};
 		const stepsOrder = [];
 		let defaultRoute;
@@ -78,21 +80,24 @@ export default class Manager {
 			const currentStep = new Step();
 
 			// Get the step route
-			const currentRoute = currentStep.route;
+			const stepId = currentStep.id;
 
 			// Expose new functions on each steps
 			currentStep.requestOptions = () => this.options;
 			currentStep.requestDatas = (...filters) => this.CacheManager.getDatasFromCache(filters);
 
 			// Store the instance reference in class properties
-			steps[currentRoute] = currentStep;
+			steps[stepId] = currentStep;
 
 			// Set an ordered array with routes name
-			stepsOrder.push(currentRoute);
+			stepsOrder.push({
+				id: stepId,
+				route: currentStep.route
+			});
 
 			// Save the default route
 			if (index === 0) {
-				defaultRoute = currentRoute;
+				defaultRoute = currentStep.route;
 			}
 		});
 
@@ -107,7 +112,7 @@ export default class Manager {
 	 * Create manager event listeners
 	 * All listeners are created on class properties to facilitate the deletion of events
 	 */
-	addEvents () {
+	addEvents() {
 		// Create custom event to listen navigation changes from steps
 		this.eventNextStep = new window.Event('nextStep');
 		this.options.element.addEventListener('nextStep', this.triggerNextStep, false);
@@ -121,15 +126,17 @@ export default class Manager {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	triggerNextStep (e) {
+	triggerNextStep(e) {
 		// Check if steps are completed
 		if (!this.isCompleted) {
+			const currentRouteId = this.Router.getRouteId(this.Router.currentRoute);
+
 			// Get datas from the current step
-			const stepDatas = this.steps[this.Router.currentRoute].getDatasFromStep();
+			const stepDatas = this.steps[currentRouteId].getDatasFromStep();
 
 			// Update cache with datas
 			this.CacheManager.setDatasToCache({
-				route: this.Router.currentRoute,
+				id: currentRouteId,
 				datas: stepDatas
 			});
 
@@ -144,25 +151,21 @@ export default class Manager {
 	 *
 	 * @param {Object} e Event listener datas
 	 */
-	triggerPreviousStep (e) {
+	triggerPreviousStep(e) {
 		this.Router.triggerPrevious();
 	}
 
 	/**
 	 * All steps are complete
 	 */
-	allStepsComplete () {
+	allStepsComplete() {
 		this.isCompleted = true;
 
 		// Freeze the display to prevent multiple submit
 		this.options.element.classList.add('loading');
 
-		this.Router.destroyStep(this.Router.currentRoute);
-		this.Router.setRoute('');
-		this.destroy();
-
 		// Execute the user callback function if available
-		if (this.options.onComplete instanceof Function) {
+		if (typeof this.options.onComplete === 'function') {
 			this.options.onComplete(this.CacheManager.getDatasFromCache());
 		}
 
@@ -173,10 +176,12 @@ export default class Manager {
 	/**
 	 * Destroy the manager (event listeners, router)
 	 */
-	destroy () {
+	destroy() {
 		this.options.element.removeEventListener('nextStep', this.triggerNextStep);
 		this.options.element.removeEventListener('previousStep', this.triggerPreviousStep);
 
+		this.Router.setRoute('');
 		this.Router.destroy();
+		this.options.element.remove();
 	}
 }

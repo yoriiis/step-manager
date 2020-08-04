@@ -9,53 +9,67 @@ import Router from '../router';
 import { Manager } from '../index.js';
 
 jest.mock('../router');
+jest.mock('../cache-manager');
 
 let manager;
 
 class StepPeople extends Steps {
+	id = 'id-people';
 	route = 'people';
 	selector = '.step-people';
-	canTheStepBeDisplayed () {
+
+	canTheStepBeDisplayed() {
 		return {
 			canBeDisplayed: true,
 			fallbackRoute: null
 		};
 	}
 
-	getTemplate () {
+	getTemplate() {
 		return '<div class="step-people"></div>';
 	}
 
-	getDatasFromStep () {
+	getDatasFromStep() {
 		return {};
 	}
 }
 
 class StepPlanet extends Steps {
+	id = 'id-planet';
 	route = 'planet';
 	selector = '.step-planet';
-	canTheStepBeDisplayed () {
+
+	canTheStepBeDisplayed() {
 		return {
 			canBeDisplayed: true,
 			fallbackRoute: null
 		};
 	}
 
-	getTemplate () {
+	getTemplate() {
 		return '<div class="step-planet"></div>';
 	}
 
-	getDatasFromStep () {
+	getDatasFromStep() {
 		return {};
 	}
 }
 
 const resultAnalyzeSteps = {
 	steps: {
-		people: StepPeople,
-		planet: StepPlanet
+		'id-people': StepPeople,
+		'id-planet': StepPlanet
 	},
-	stepsOrder: ['people', 'planet'],
+	stepsOrder: [
+		{
+			id: 'id-people',
+			route: 'people'
+		},
+		{
+			id: 'id-planet',
+			route: 'planet'
+		}
+	],
 	defaultRoute: 'people'
 };
 
@@ -64,7 +78,12 @@ const getOptions = () => {
 		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet],
-		onComplete: datas => true
+		onComplete: (datas) => {
+			console.log('onComplete');
+		},
+		onChange: (action) => {
+			console.log('onChange', action);
+		}
 	};
 };
 
@@ -89,9 +108,12 @@ describe('Manager constructor', () => {
 			steps: [StepPeople, StepPlanet],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onComplete: expect.any(Function)
+			onComplete: expect.any(Function),
+			onChange: expect.any(Function)
 		});
-		expect(manager.isCompleted).toBe(false);
+		expect(manager.isCompleted).toBeFalsy();
+		expect(manager.triggerPreviousStep).toBe(manager.triggerPreviousStep);
+		expect(manager.triggerNextStep).toBe(manager.triggerNextStep);
 	});
 
 	it('Should initialize the constructor without options', () => {
@@ -103,9 +125,10 @@ describe('Manager constructor', () => {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
-			onComplete: expect.any(Function)
+			onComplete: expect.any(Function),
+			onChange: expect.any(Function)
 		});
-		expect(manager.isCompleted).toBe(false);
+		expect(manager.isCompleted).toBeFalsy();
 	});
 });
 
@@ -120,26 +143,46 @@ describe('Manager init', () => {
 		expect(manager.addEvents).toHaveBeenCalled();
 		expect(manager.analyzeSteps).toHaveBeenCalled();
 		expect(manager.steps).toEqual(resultAnalyzeSteps.steps);
-		expect(manager.CacheManager).toBeInstanceOf(CacheManager);
-		expect(manager.Router).toBeInstanceOf(Router);
+		expect(CacheManager).toHaveBeenCalledWith({
+			cacheMethod: 'sessionStorage',
+			keyBrowserStorage: 'stepManager'
+		});
+		expect(Router).toHaveBeenCalledWith({
+			defaultRoute: resultAnalyzeSteps.defaultRoute,
+			stepsOrder: resultAnalyzeSteps.stepsOrder,
+			steps: resultAnalyzeSteps.steps,
+			onChange: manager.options.onChange,
+			getDatasFromCache: expect.any(Function)
+		});
 		expect(manager.Router.init).toHaveBeenCalled();
 	});
 });
 
 describe('Manager analyzeSteps', () => {
 	it('Should call the analyzeSteps function', () => {
-		mockCacheManager(manager);
+		mockCacheManager(manager, {
+			getDatasFromCache: {}
+		});
 
 		const results = manager.analyzeSteps();
 
-		expect(results.steps.people).toBeInstanceOf(StepPeople);
-		expect(results.steps.planet).toBeInstanceOf(StepPlanet);
-		expect(results.stepsOrder).toEqual(['people', 'planet']);
+		expect(results.steps['id-people']).toBeInstanceOf(StepPeople);
+		expect(results.steps['id-planet']).toBeInstanceOf(StepPlanet);
+		expect(results.stepsOrder).toEqual([
+			{
+				id: 'id-people',
+				route: 'people'
+			},
+			{
+				id: 'id-planet',
+				route: 'planet'
+			}
+		]);
 		expect(results.defaultRoute).toEqual('people');
-		expect(results.steps.people.requestOptions).toEqual(expect.any(Function));
-		expect(results.steps.people.requestOptions()).toEqual(manager.options);
-		expect(results.steps.people.requestDatas).toEqual(expect.any(Function));
-		expect(results.steps.people.requestDatas()).toEqual(true);
+		expect(results.steps['id-people'].requestOptions).toEqual(expect.any(Function));
+		expect(results.steps['id-people'].requestOptions()).toEqual(manager.options);
+		expect(results.steps['id-people'].requestDatas).toEqual(expect.any(Function));
+		expect(results.steps['id-people'].requestDatas()).toEqual({});
 	});
 });
 
@@ -163,39 +206,37 @@ describe('Manager addEvents', () => {
 });
 
 describe('Manager triggerNextStep', () => {
-	it('Should cal the triggerNextStep function', () => {
-		mockRouter(manager);
+	it('Should call the triggerNextStep function', () => {
+		mockRouter(manager, { routeId: 'id-people' });
+		mockCacheManager(manager);
 
 		manager.steps = {
-			people: {
+			'id-people': {
 				getDatasFromStep: jest.fn().mockImplementation(() => {
-					return true;
+					return {};
 				})
 			}
 		};
-		mockCacheManager(manager);
 
 		manager.allStepsComplete = jest.fn();
 
 		manager.triggerNextStep();
 
-		expect(manager.steps.people.getDatasFromStep).toHaveBeenCalled();
+		expect(manager.steps['id-people'].getDatasFromStep).toHaveBeenCalled();
 		expect(manager.Router.triggerNext).toHaveBeenCalled();
 		expect(manager.CacheManager.setDatasToCache).toHaveBeenCalledWith({
-			route: 'people',
-			datas: true
+			id: 'id-people',
+			datas: {}
 		});
 		expect(manager.allStepsComplete).not.toHaveBeenCalled();
 	});
 
-	it('Should cal the triggerNextStep function with isComplete TRUE', () => {
-		mockRouter(manager);
+	it('Should call the triggerNextStep function with isComplete TRUE', () => {
+		mockRouter(manager, { routeId: 'id-people' });
 
 		manager.steps = {
-			people: {
-				getDatasFromStep: jest.fn().mockImplementation(() => {
-					return true;
-				})
+			'id-people': {
+				getDatasFromStep: jest.fn()
 			}
 		};
 		mockCacheManager(manager);
@@ -204,21 +245,20 @@ describe('Manager triggerNextStep', () => {
 		manager.isCompleted = true;
 		manager.triggerNextStep();
 
-		expect(manager.steps.people.getDatasFromStep).not.toHaveBeenCalled();
+		expect(manager.steps['id-people'].getDatasFromStep).not.toHaveBeenCalled();
 		expect(manager.CacheManager.setDatasToCache).not.toHaveBeenCalled();
 		expect(manager.Router.triggerNext).not.toHaveBeenCalled();
 		expect(manager.allStepsComplete).not.toHaveBeenCalled();
 	});
 
-	it('Should cal the triggerNextStep function with last step', () => {
+	it('Should call the triggerNextStep function with last step', () => {
 		mockRouter(manager, {
-			triggerNext: false
+			triggerNext: false,
+			routeId: 'id-people'
 		});
 		manager.steps = {
-			people: {
-				getDatasFromStep: jest.fn().mockImplementation(() => {
-					return true;
-				})
+			'id-people': {
+				getDatasFromStep: jest.fn()
 			}
 		};
 		mockCacheManager(manager);
@@ -226,7 +266,7 @@ describe('Manager triggerNextStep', () => {
 
 		manager.triggerNextStep();
 
-		expect(manager.steps.people.getDatasFromStep).toHaveBeenCalled();
+		expect(manager.steps['id-people'].getDatasFromStep).toHaveBeenCalled();
 		expect(manager.CacheManager.setDatasToCache).toHaveBeenCalled();
 		expect(manager.Router.triggerNext).toHaveBeenCalled();
 		expect(manager.allStepsComplete).toHaveBeenCalled();
@@ -248,24 +288,38 @@ describe('Manager allStepsComplete', () => {
 		mockRouter(manager);
 		manager.destroy = jest.fn();
 		manager.options.onComplete = jest.fn();
-		mockCacheManager(manager);
+		mockCacheManager(manager, {
+			getDatasFromCache: {}
+		});
 
 		manager.allStepsComplete();
 
-		expect(manager.Router.destroyStep).toHaveBeenCalledWith('people');
-		expect(manager.Router.setRoute).toHaveBeenCalledWith('');
-		expect(manager.destroy).toHaveBeenCalled();
-
-		// Because Jest update the instance of onComplete
-		// Function is executed only if instanceof Function
-		expect(manager.options.onComplete).not.toHaveBeenCalledWith(true);
+		expect(manager.isCompleted).toBeTruthy();
+		expect(manager.options.element.classList.contains('loading')).toBeTruthy();
+		expect(manager.options.onComplete).toHaveBeenCalledWith({});
 		expect(manager.CacheManager.removeDatasFromCache).toHaveBeenCalled();
+	});
+
+	it('Should call the allStepsComplete function without the onComplete function', () => {
+		mockRouter(manager);
+		manager.destroy = jest.fn();
+		manager.options.onComplete = jest.fn();
+		mockCacheManager(manager, {
+			getDatasFromCache: {}
+		});
+
+		manager.options.onComplete = null;
+		manager.allStepsComplete();
+		manager.options.onComplete = jest.fn();
+
+		expect(manager.options.onComplete).not.toHaveBeenCalled();
 	});
 });
 
 describe('Manager destroy', () => {
 	it('Should call the destroy', () => {
 		manager.options.element.removeEventListener = jest.fn();
+		manager.options.element.remove = jest.fn();
 		mockRouter(manager);
 
 		manager.destroy();
@@ -278,6 +332,8 @@ describe('Manager destroy', () => {
 			'previousStep',
 			manager.triggerPreviousStep
 		);
+		expect(manager.Router.setRoute).toHaveBeenCalledWith('');
 		expect(manager.Router.destroy).toHaveBeenCalled();
+		expect(manager.options.element.remove).toHaveBeenCalled();
 	});
 });

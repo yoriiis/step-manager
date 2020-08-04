@@ -1,7 +1,11 @@
 module.exports = {
-	extends: 'stylelint-config-standard',
+	extends: ['stylelint-config-standard'],
+	plugins: ['stylelint-prettier'],
 	rules: {
-		indentation: 4,
-		'unit-whitelist': ['em', 'rem', '%', 'px', 's', 'deg', 'fr', 'vh', 'ms']
+		indentation: ['tab', { ignore: 'inside-parens' }],
+		'unit-whitelist': ['em', 'rem', '%', 'px', 's', 'deg', 'fr', 'vh', 'vw', 'ms'],
+		'declaration-colon-newline-after': null,
+		'value-list-comma-newline-after': null,
+		'prettier/prettier': true
 	}
 };

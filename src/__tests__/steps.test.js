@@ -1,23 +1,24 @@
 import Steps from '../steps';
 
 let steps;
-const datas = { people: true };
+const datas = { 'id-people': true };
 
 class StepPeople extends Steps {
+	id = 'id-people';
 	route = 'people';
 	selector = '.step-people';
-	canTheStepBeDisplayed () {
+	canTheStepBeDisplayed() {
 		return {
 			canBeDisplayed: true,
 			fallbackRoute: null
 		};
 	}
 
-	getTemplate () {
+	getTemplate() {
 		return '<div class="step-people"></div>';
 	}
 
-	getDatasFromStep () {
+	getDatasFromStep() {
 		return {};
 	}
 }
@@ -32,7 +33,7 @@ const getOptions = () => {
 	};
 };
 
-const getEventObject = selector => {
+const getEventObject = (selector) => {
 	return {
 		target: document.querySelector(selector)
 	};
@@ -50,7 +51,8 @@ afterEach(() => {});
 describe('Steps fields', () => {
 	it('Should initialize public instance fields', () => {
 		expect(steps.fallbackRoute).toBe(null);
-		expect(steps.optionalStep).toBe(false);
+		expect(steps.optionalStep).toBeFalsy();
+		expect(steps.clickOnCurrentStep).toBe(steps.clickOnCurrentStep);
 	});
 });
 
@@ -58,15 +60,19 @@ describe('Steps render', () => {
 	it('Should call the render function', () => {
 		steps.requestOptions = jest.fn().mockImplementation(() => getOptions());
 		steps.afterRender = jest.fn();
+		steps.getStepDatasToRender = jest.fn().mockReturnValue({});
 		steps.getTemplate = jest.fn().mockImplementation(() => 'CONTENT');
+		jest.spyOn(steps.options.element, 'insertAdjacentHTML');
 
 		steps.render(datas);
 
 		expect(steps.requestOptions).toHaveBeenCalled();
-		expect(steps.getTemplate).toHaveBeenCalled();
-		expect(document.body.innerHTML).toBe(
-			'<div id="steps"><div class="step-people"><button data-step-previous=""></button><button data-step-next=""></button></div>CONTENT</div>'
+		expect(steps.options.element.insertAdjacentHTML).toHaveBeenCalledWith(
+			'beforeend',
+			'CONTENT'
 		);
+		expect(steps.getTemplate).toHaveBeenCalledWith({});
+		expect(steps.getStepDatasToRender).toHaveBeenCalled();
 		expect(steps.afterRender).toHaveBeenCalledWith(datas);
 	});
 });
@@ -100,6 +106,14 @@ describe('Steps afterRender', () => {
 		steps.afterRender();
 
 		expect(steps.renderDatasFromCache).not.toHaveBeenCalled();
+	});
+});
+
+describe('Steps getStepDatasToRender', () => {
+	it('Should call the getStepDatasToRender function', () => {
+		const result = steps.getStepDatasToRender();
+
+		expect(result).toBeNull();
 	});
 });
 
@@ -208,7 +222,7 @@ describe('Steps checkIfStepIsReadyToSubmit', () => {
 
 		steps.checkIfStepIsReadyToSubmit();
 
-		expect(steps.stepIsReadyToSubmit).toBe(true);
+		expect(steps.stepIsReadyToSubmit).toBeTruthy();
 		expect(steps.updateButtonToValidateStep).toHaveBeenCalled();
 	});
 
@@ -218,7 +232,7 @@ describe('Steps checkIfStepIsReadyToSubmit', () => {
 
 		steps.checkIfStepIsReadyToSubmit();
 
-		expect(steps.stepIsReadyToSubmit).toBe(false);
+		expect(steps.stepIsReadyToSubmit).toBeFalsy();
 		expect(steps.updateButtonToValidateStep).toHaveBeenCalled();
 	});
 });
