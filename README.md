@@ -34,7 +34,7 @@ First, create the steps container with a selector easily accessible.
 <div id="steps"></div>
 ```
 
-Next, we will create the steps `People` and `Planet` for our example. All the steps needs inheritance from `Steps` to access hook functions.
+Next, create the steps `People` and `Planet` for our example. All the steps need inheritance from `Steps` to access hook functions.
 
 __step-people.js__
 
@@ -131,7 +131,7 @@ _The parameter is a public instance field._
 
 `Boolean`
 
-To declare if the step is optional and can be submit without validation. The validation is set on the `canTheStepBeDisplayed` function.
+To declare if the step is optional and can be submitted without validation. The validation is set on the `canTheStepBeDisplayed` function.
 
 _The parameter is a public instance field and is optional._
 
@@ -139,7 +139,7 @@ _The parameter is a public instance field and is optional._
 
 `Function`
 
-The function for the display conditions of the step. The function need to return an object with the following keys:
+To declare the display conditions of the step. Needs to return an object with the following keys:
 
 ```javascript
 return {
@@ -172,7 +172,7 @@ The function returns the data for the template.
 
 `Function`
 
-The function allows to extract step data to save in the browser storage and persist during the navigation.
+The function allows to extract step data to save in the browser storage in order to persist during the entire navigation.
 
 ### Manager
 
