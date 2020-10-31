@@ -5,9 +5,7 @@
  * @param {Object} result Object with steps instance, steps order and default route
  */
 export function mockAnalyzeSteps(manager, result) {
-	manager.analyzeSteps = jest.fn().mockImplementation(() => {
-		return result;
-	});
+	manager.analyzeSteps = jest.fn().mockReturnValue(result);
 }
 
 /**
@@ -20,7 +18,7 @@ export function mockRouter(manager, { triggerNext = true, routeId = '' } = {}) {
 	manager.Router = {
 		init: jest.fn(),
 		currentRoute: 'people',
-		triggerNext: jest.fn().mockImplementation(() => triggerNext),
+		triggerNext: jest.fn().mockReturnValue(triggerNext),
 		triggerPrevious: jest.fn(),
 		destroy: jest.fn(),
 		setRoute: jest.fn(),
@@ -37,7 +35,7 @@ export function mockRouter(manager, { triggerNext = true, routeId = '' } = {}) {
  */
 export function mockCacheManager(manager, { getDatasFromCache } = {}) {
 	manager.CacheManager = {
-		getDatasFromCache: jest.fn().mockImplementation(() => getDatasFromCache),
+		getDatasFromCache: jest.fn().mockReturnValue(getDatasFromCache),
 		removeDatasFromCache: jest.fn(),
 		setDatasToCache: jest.fn()
 	};

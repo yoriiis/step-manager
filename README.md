@@ -1,6 +1,6 @@
 # StepManager
 
-![StepManager](https://img.shields.io/badge/step--manager-v1.2.0-ff004b.svg?style=for-the-badge) ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/yoriiis/step-manager/Build/master?style=for-the-badge) [![Coverage Status](https://img.shields.io/coveralls/github/yoriiis/step-manager?style=for-the-badge)](https://coveralls.io/github/yoriiis/step-manager?branch=master)  ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
+![StepManager](https://img.shields.io/badge/step--manager-v1.2.1-ff004b.svg?style=for-the-badge) ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/yoriiis/step-manager/Build/master?style=for-the-badge) [![Coverage Status](https://img.shields.io/coveralls/github/yoriiis/step-manager?style=for-the-badge)](https://coveralls.io/github/yoriiis/step-manager?branch=master)  ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
 
 `StepManager` is a library to create **flexible** and **robust** multiple **steps** navigation with hash, **validations**, browser **storage** and **hook** functions.
 
@@ -187,6 +187,7 @@ const manager = new Manager({
     element: document.querySelector("#steps"),
     datas: {},
     steps: [StepPeople, StepPlanet],
+    ignoredHash: [],
     onComplete: datas => {},
     onChange: action => {}
 });
@@ -217,6 +218,18 @@ See the SWAPI example in the `./example/` directory for the full implementation.
 `Array`
 
 The array of steps.
+
+#### `ignoredHash`
+
+`Array`
+
+The array of ignored hash.
+
+Use this array to list the ignored hashs and prevent the manager from listening for specific hashs which can cause conflicts with steps navigation. For example the following use case will work:
+
+* With an ignored hash triggered, nothing will be added to the current steps.
+* When the user returns to the same hash, nothing will is added because the step already exists.
+* When the user triggers step navigation when an ignored hash is set, the navigation will run normally and destroy/create steps.
 
 #### `cacheMethod`
 

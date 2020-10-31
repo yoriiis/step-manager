@@ -78,6 +78,7 @@ const getOptions = () => {
 		element: document.querySelector('#steps'),
 		datas: datas,
 		steps: [StepPeople, StepPlanet],
+		ignoredHash: ['menu'],
 		onComplete: (datas) => {
 			console.log('onComplete');
 		},
@@ -108,10 +109,11 @@ describe('Manager constructor', () => {
 			steps: [StepPeople, StepPlanet],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
+			ignoredHash: ['menu'],
 			onComplete: expect.any(Function),
 			onChange: expect.any(Function)
 		});
-		expect(manager.isCompleted).toBeFalsy();
+		expect(manager.isCompleted).toBe(false);
 		expect(manager.triggerPreviousStep).toBe(manager.triggerPreviousStep);
 		expect(manager.triggerNextStep).toBe(manager.triggerNextStep);
 	});
@@ -125,10 +127,11 @@ describe('Manager constructor', () => {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
+			ignoredHash: [],
 			onComplete: expect.any(Function),
 			onChange: expect.any(Function)
 		});
-		expect(manager.isCompleted).toBeFalsy();
+		expect(manager.isCompleted).toBe(false);
 	});
 });
 
@@ -151,6 +154,7 @@ describe('Manager init', () => {
 			defaultRoute: resultAnalyzeSteps.defaultRoute,
 			stepsOrder: resultAnalyzeSteps.stepsOrder,
 			steps: resultAnalyzeSteps.steps,
+			ignoredHash: manager.options.ignoredHash,
 			onChange: manager.options.onChange,
 			getDatasFromCache: expect.any(Function)
 		});
@@ -212,9 +216,7 @@ describe('Manager triggerNextStep', () => {
 
 		manager.steps = {
 			'id-people': {
-				getDatasFromStep: jest.fn().mockImplementation(() => {
-					return {};
-				})
+				getDatasFromStep: jest.fn().mockReturnValue({})
 			}
 		};
 
@@ -294,8 +296,8 @@ describe('Manager allStepsComplete', () => {
 
 		manager.allStepsComplete();
 
-		expect(manager.isCompleted).toBeTruthy();
-		expect(manager.options.element.classList.contains('loading')).toBeTruthy();
+		expect(manager.isCompleted).toBe(true);
+		expect(manager.options.element.classList.contains('loading')).toBe(true);
 		expect(manager.options.onComplete).toHaveBeenCalledWith({});
 		expect(manager.CacheManager.removeDatasFromCache).toHaveBeenCalled();
 	});

@@ -1,6 +1,6 @@
 {
 	"name": "step-manager",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.",
 	"keywords": [
 		"manager",
@@ -24,6 +24,7 @@
 	"scripts": {
 		"build": "rm -rf ./dist/ && webpack --mode=production",
 		"build:example": "rm -rf ./example/dist/ && webpack --config=./example/webpack.config.js --mode=production",
+		"build:all": "npm run build && npm run build:example",
 		"coverage": "npm run test:coverage && cat ./coverage/lcov.info | coveralls",
 		"create:gh-pages": "rm -rf ./gh-pages && mkdir ./gh-pages && cp -r ./example/dist/. ./gh-pages/dist/ && cp ./example/index.html ./gh-pages/index.html",
 		"start": "rm -rf ./dist/ && webpack --mode=development",

@@ -65,6 +65,7 @@ const getOptions = () => {
 			'id-people': new StepPeople(),
 			'id-planet': new StepPlanet()
 		},
+		ignoredHash: ['menu'],
 		getDatasFromCache: (...filters) => new CacheManager().getDatasFromCache(filters),
 		onChange: () => {}
 	};
@@ -107,14 +108,15 @@ describe('Router constructor', () => {
 				'id-people': expect.any(Object),
 				'id-planet': expect.any(Object)
 			},
+			ignoredHash: ['menu'],
 			getDatasFromCache: expect.any(Function),
 			onChange: expect.any(Function)
 		});
 		expect(router.options.steps['id-people']).toBeInstanceOf(StepPeople);
 		expect(router.options.steps['id-planet']).toBeInstanceOf(StepPlanet);
-		expect(router.reverseNavigation).toBeFalsy();
-		expect(router.stepCreated).toBeFalsy();
-		expect(router.applicationReady).toBeFalsy();
+		expect(router.reverseNavigation).toBe(false);
+		expect(router.stepCreated).toBe(false);
+		expect(router.applicationReady).toBe(false);
 		expect(router.stepRedirected).toEqual({});
 		expect(router.hashChanged).toBe(router.hashChanged);
 	});
@@ -126,6 +128,7 @@ describe('Router constructor', () => {
 			defaultRoute: null,
 			stepsOrder: [],
 			steps: {},
+			ignoredHash: [],
 			getDatasFromCache: expect.any(Function),
 			onChange: expect.any(Function)
 		});
@@ -135,7 +138,7 @@ describe('Router constructor', () => {
 describe('Router init', () => {
 	it('Should call the init function', () => {
 		router.addEvents = jest.fn();
-		router.getRoute = jest.fn().mockImplementation(() => '');
+		router.getRoute = jest.fn().mockReturnValue('');
 		router.setRoute = jest.fn();
 
 		router.init();
@@ -147,7 +150,7 @@ describe('Router init', () => {
 
 	it('Should call the init function with specific route', () => {
 		router.addEvents = jest.fn();
-		router.getRoute = jest.fn().mockImplementation(() => 'planet');
+		router.getRoute = jest.fn().mockReturnValue('planet');
 		router.hashChanged = jest.fn();
 
 		router.init();
@@ -176,12 +179,10 @@ describe('Router hashChanged', () => {
 	it('Should call the hashChanged function', () => {
 		const route = 'planet';
 
-		router.getRoute = jest.fn().mockImplementation(() => route);
-		router.checkIfTheStepCanBeDisplay = jest.fn().mockImplementation(() => {
-			return {
-				canBeDisplayed: true,
-				fallbackRoute: 'people'
-			};
+		router.getRoute = jest.fn().mockReturnValue(route);
+		router.checkIfTheStepCanBeDisplay = jest.fn().mockReturnValue({
+			canBeDisplayed: true,
+			fallbackRoute: 'people'
 		});
 		router.stepCanBeDisplayed = jest.fn();
 		router.stepCantBeDisplayed = jest.fn();
@@ -197,15 +198,52 @@ describe('Router hashChanged', () => {
 		expect(router.stepCantBeDisplayed).not.toHaveBeenCalledWith(event, 'people');
 	});
 
+	it('Should call the hashChanged function with ignored hash when the user leave', () => {
+		const route = 'planet';
+
+		router.getRoute = jest.fn().mockReturnValue(route);
+		router.isIgnoredHashUsedToLeave = jest.fn().mockReturnValue(true);
+		router.isIgnoredHashUsedToComeBack = jest.fn();
+		router.checkIfTheStepCanBeDisplay = jest.fn();
+		router.stepCanBeDisplayed = jest.fn();
+		router.stepCantBeDisplayed = jest.fn();
+
+		router.hashChanged(event);
+
+		expect(router.getRoute).toHaveBeenCalled();
+		expect(router.isIgnoredHashUsedToLeave).toHaveBeenCalled();
+		expect(router.checkIfTheStepCanBeDisplay).not.toHaveBeenCalledWith();
+		expect(router.stepCanBeDisplayed).not.toHaveBeenCalledWith();
+		expect(router.stepCantBeDisplayed).not.toHaveBeenCalledWith();
+	});
+
+	it('Should call the hashChanged function with ignored hash when the user has returned', () => {
+		const route = 'planet';
+
+		router.getRoute = jest.fn().mockReturnValue(route);
+		router.isIgnoredHashUsedToLeave = jest.fn();
+		router.isIgnoredHashUsedToComeBack = jest.fn().mockReturnValue(true);
+		router.checkIfTheStepCanBeDisplay = jest.fn();
+		router.stepCanBeDisplayed = jest.fn();
+		router.stepCantBeDisplayed = jest.fn();
+
+		router.hashChanged(event);
+
+		expect(router.getRoute).toHaveBeenCalled();
+		expect(router.isIgnoredHashUsedToLeave).toHaveBeenCalled();
+		expect(router.isIgnoredHashUsedToComeBack).toHaveBeenCalled();
+		expect(router.checkIfTheStepCanBeDisplay).not.toHaveBeenCalledWith();
+		expect(router.stepCanBeDisplayed).not.toHaveBeenCalledWith();
+		expect(router.stepCantBeDisplayed).not.toHaveBeenCalledWith();
+	});
+
 	it('Should call the hashChanged function with invalid step', () => {
 		const route = 'planet';
 
-		router.getRoute = jest.fn().mockImplementation(() => route);
-		router.checkIfTheStepCanBeDisplay = jest.fn().mockImplementation(() => {
-			return {
-				canBeDisplayed: false,
-				fallbackRoute: 'people'
-			};
+		router.getRoute = jest.fn().mockReturnValue(route);
+		router.checkIfTheStepCanBeDisplay = jest.fn().mockReturnValue({
+			canBeDisplayed: false,
+			fallbackRoute: 'people'
 		});
 		router.stepCanBeDisplayed = jest.fn();
 		router.stepCantBeDisplayed = jest.fn();
@@ -235,8 +273,26 @@ describe('Router stepCanBeDisplayed', () => {
 		expect(router.previousRoute).toBe('people');
 		expect(router.destroyStep).toHaveBeenCalledWith('people');
 		expect(router.createStep).toHaveBeenCalledWith('planet');
-		expect(router.stepCreated).toBeTruthy();
-		expect(router.stepRedirected.redirect).toBeFalsy();
+		expect(router.stepCreated).toBe(true);
+		expect(router.stepRedirected.redirect).toBe(undefined);
+	});
+
+	it('Should call the stepCanBeDisplayed function with previous route before leaving', async () => {
+		router.getPreviousRoute = jest.fn();
+		router.destroyStep = jest.fn();
+		router.createStep = jest.fn();
+
+		router.previousRouteBeforeLeaving = 'people';
+		router.currentRoute = 'planet';
+		await router.stepCanBeDisplayed(event);
+
+		expect(router.getPreviousRoute).not.toHaveBeenCalledWith();
+		expect(router.previousRoute).toBe('people');
+		expect(router.destroyStep).toHaveBeenCalledWith('people');
+		expect(router.createStep).toHaveBeenCalledWith('planet');
+		expect(router.stepCreated).toBe(true);
+		expect(router.stepRedirected.redirect).toBe(undefined);
+		expect(router.previousRouteBeforeLeaving).toBe(null);
 	});
 
 	it('Should call the stepCanBeDisplayed function without event', async () => {
@@ -265,11 +321,11 @@ describe('Router stepCanBeDisplayed', () => {
 		};
 		await router.stepCanBeDisplayed(event);
 
-		expect(router.stepRedirected.redirect).toBeFalsy();
+		expect(router.stepRedirected.redirect).toBe(false);
 	});
 
 	it('Should call the stepCanBeDisplayed function without previousRoute', async () => {
-		router.getPreviousRoute = jest.fn().mockImplementation(() => null);
+		router.getPreviousRoute = jest.fn().mockReturnValue(null);
 		router.destroyStep = jest.fn();
 		router.createStep = jest.fn();
 		router.currentRoute = 'planet';
@@ -288,7 +344,7 @@ describe('Router stepCantBeDisplayed', () => {
 	it('Should call the stepCantBeDisplayed function', () => {
 		const route = 'planet';
 
-		router.getPreviousRoute = jest.fn().mockImplementation(() => route);
+		router.getPreviousRoute = jest.fn().mockReturnValue(route);
 		router.setRoute = jest.fn();
 
 		router.stepCantBeDisplayed(event, route);
@@ -325,11 +381,11 @@ describe('Router checkIfTheStepCanBeDisplay', () => {
 		});
 
 		expect(router.options.steps[routeId].canTheStepBeDisplayed).toHaveBeenCalled();
-		expect(result).toBeTruthy();
+		expect(result).toBe(true);
 	});
 
 	it('Should call the checkIfTheStepCanBeDisplay function with invalid step and a fallback route', () => {
-		router.getPreviousRoute = jest.fn().mockImplementation(() => 'planet');
+		router.getPreviousRoute = jest.fn().mockReturnValue('planet');
 
 		const result = router.checkIfTheStepCanBeDisplay({
 			route: 'fakestep',
@@ -359,7 +415,7 @@ describe('Router checkIfTheStepCanBeDisplay', () => {
 	});
 
 	it('Should call the checkIfTheStepCanBeDisplay function with invalid step', () => {
-		router.getPreviousRoute = jest.fn().mockImplementation(() => null);
+		router.getPreviousRoute = jest.fn().mockReturnValue(null);
 
 		const result = router.checkIfTheStepCanBeDisplay({
 			route: 'fakestep',
@@ -380,11 +436,11 @@ describe('Router createStep', () => {
 
 		router.options.onChange = jest.fn();
 		router.getRouteId = jest.fn().mockReturnValue(routeId);
-		router.options.getDatasFromCache = jest.fn().mockImplementation(() => ({
+		router.options.getDatasFromCache = jest.fn().mockReturnValue({
 			[routeId]: {
 				datas: {}
 			}
-		}));
+		});
 		router.options.steps[routeId].render = jest.fn();
 
 		await router.createStep(route);
@@ -392,7 +448,7 @@ describe('Router createStep', () => {
 		expect(router.getRouteId).toHaveBeenCalledWith(route);
 		expect(router.options.getDatasFromCache).toHaveBeenCalledWith([routeId]);
 		expect(router.options.steps[routeId].render).toHaveBeenCalledWith({});
-		expect(router.applicationReady).toBeTruthy();
+		expect(router.applicationReady).toBe(true);
 		expect(router.options.onChange).toHaveBeenCalledWith('create');
 	});
 
@@ -400,7 +456,7 @@ describe('Router createStep', () => {
 		const route = 'people';
 		const routeId = 'id-people';
 
-		router.options.getDatasFromCache = jest.fn().mockImplementation(() => null);
+		router.options.getDatasFromCache = jest.fn().mockReturnValue(null);
 		router.options.steps[routeId].render = jest.fn();
 
 		await router.createStep(route);
@@ -412,20 +468,20 @@ describe('Router createStep', () => {
 		const route = 'people';
 		const routeId = 'id-people';
 
-		router.options.getDatasFromCache = jest.fn().mockImplementation(() => null);
+		router.options.getDatasFromCache = jest.fn().mockReturnValue(null);
 		router.options.steps[routeId].render = jest.fn();
 
 		router.applicationReady = true;
 		await router.createStep(route);
 
-		expect(router.applicationReady).toBeTruthy();
+		expect(router.applicationReady).toBe(true);
 	});
 
 	it('Should call the createStep function without the onChange function', async () => {
 		const route = 'people';
 		const routeId = 'id-people';
 
-		router.options.getDatasFromCache = jest.fn().mockImplementation(() => null);
+		router.options.getDatasFromCache = jest.fn().mockReturnValue(null);
 		router.options.steps[routeId].render = jest.fn();
 
 		router.options.onChange = null;
@@ -469,7 +525,7 @@ describe('Router triggerNext', () => {
 	it('Should call the triggerNext function', () => {
 		const currentRoute = 'people';
 
-		router.getNextStepRoute = jest.fn().mockImplementation(() => 'planet');
+		router.getNextStepRoute = jest.fn().mockReturnValue('planet');
 		router.setRoute = jest.fn();
 
 		router.currentRoute = currentRoute;
@@ -480,11 +536,11 @@ describe('Router triggerNext', () => {
 	});
 
 	it('Should call the triggerNext function on the last step', () => {
-		router.getNextStepRoute = jest.fn().mockImplementation(() => 'end');
+		router.getNextStepRoute = jest.fn().mockReturnValue('end');
 
 		const result = router.triggerNext();
 
-		expect(result).toBeFalsy();
+		expect(result).toBe(false);
 	});
 });
 
@@ -508,7 +564,7 @@ describe('Router isReverseNavigation', () => {
 		router.currentRoute = 'planet';
 		const result = router.isReverseNavigation();
 
-		expect(result).toBeFalsy();
+		expect(result).toBe(false);
 	});
 
 	it('Should call the isReverseNavigation function with a reverse navigation', () => {
@@ -516,7 +572,36 @@ describe('Router isReverseNavigation', () => {
 		router.currentRoute = 'people';
 		const result = router.isReverseNavigation();
 
-		expect(result).toBeTruthy();
+		expect(result).toBe(true);
+	});
+});
+
+describe('Router isIgnoredHashUsedToLeave', () => {
+	it('Should call the isReverseNavigation function with an ignored hash', () => {
+		const result = router.isIgnoredHashUsedToLeave('menu');
+
+		expect(result).toBe(true);
+	});
+
+	it('Should call the isIgnoredHashUsedToLeave function without an ignored hash', () => {
+		const result = router.isIgnoredHashUsedToLeave('planet');
+
+		expect(result).toBe(false);
+	});
+});
+
+describe('Router isIgnoredHashUsedToComeBack', () => {
+	it('Should call the isIgnoredHashUsedToComeBack function with an ignored hash', () => {
+		router.previousRouteBeforeLeaving = 'planet';
+		const result = router.isIgnoredHashUsedToComeBack('planet');
+
+		expect(result).toBe(true);
+	});
+
+	it('Should call the isReverseNavigation function without an ignored hash', () => {
+		const result = router.isIgnoredHashUsedToComeBack('planet');
+
+		expect(result).toBe(false);
 	});
 });
 
@@ -538,9 +623,7 @@ describe('Router getPreviousRoute', () => {
 
 describe('Router getPreviousStepRoute', () => {
 	it('Should call the getPreviousStepRoute function', () => {
-		router.getIndexFromRoute = jest.fn().mockImplementation(() => {
-			return '1';
-		});
+		router.getIndexFromRoute = jest.fn().mockReturnValue('1');
 
 		const route = 'planet';
 		const result = router.getPreviousStepRoute(route);
@@ -550,9 +633,7 @@ describe('Router getPreviousStepRoute', () => {
 	});
 
 	it('Should call the getPreviousStepRoute function on the first step', () => {
-		router.getIndexFromRoute = jest.fn().mockImplementation(() => {
-			return '0';
-		});
+		router.getIndexFromRoute = jest.fn().mockReturnValue('0');
 
 		const route = 'people';
 		const result = router.getPreviousStepRoute(route);
@@ -563,9 +644,7 @@ describe('Router getPreviousStepRoute', () => {
 
 describe('Router getNextStepRoute', () => {
 	it('Should call the getNextStepRoute function', () => {
-		router.getIndexFromRoute = jest.fn().mockImplementation(() => {
-			return '0';
-		});
+		router.getIndexFromRoute = jest.fn().mockReturnValue('0');
 
 		const route = 'people';
 		const result = router.getNextStepRoute(route);
@@ -575,9 +654,7 @@ describe('Router getNextStepRoute', () => {
 	});
 
 	it('Should call the getNextStepRoute function on the last step', () => {
-		router.getIndexFromRoute = jest.fn().mockImplementation(() => {
-			return '1';
-		});
+		router.getIndexFromRoute = jest.fn().mockReturnValue('1');
 
 		const route = 'planet';
 		const result = router.getNextStepRoute(route);
