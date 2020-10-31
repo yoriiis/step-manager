@@ -77,7 +77,7 @@ describe('CacheManager getDatasFromCache', () => {
 
 		// Render the first item corresponding to filters array
 		// to not rewrite the function filterDatas inside the test
-		cacheManager.filterDatas = jest.fn().mockImplementation(() => datas[filters[0]]);
+		cacheManager.filterDatas = jest.fn().mockReturnValue(datas[filters[0]]);
 
 		const result = cacheManager.getDatasFromCache(filters);
 
@@ -119,7 +119,7 @@ describe('CacheManager setDatasToCache', () => {
 	});
 
 	it('Should call the setDatasToCache function with already datas in cache', () => {
-		const route = 'planet';
+		const route = 'id-planet';
 		const firstDatas = {
 			'id-people': {
 				datas: datas['id-people']
@@ -131,7 +131,7 @@ describe('CacheManager setDatasToCache', () => {
 		};
 		window[cacheMethod].setItem(keyBrowserStorage, JSON.stringify(firstDatas));
 
-		cacheManager.getDatasFromCache = jest.fn().mockImplementation(() => firstDatas);
+		cacheManager.getDatasFromCache = jest.fn().mockReturnValue(firstDatas);
 		jest.spyOn(window[cacheMethod], 'setItem');
 
 		cacheManager.setDatasToCache({ route, datas: datas[route] });

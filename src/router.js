@@ -8,6 +8,7 @@ export default class Router {
 			defaultRoute: null,
 			stepsOrder: [],
 			steps: {},
+			ignoredHash: [],
 			getDatasFromCache: () => {},
 			onChange: () => {}
 		};
@@ -63,6 +64,16 @@ export default class Router {
 		// Get the current route
 		const route = this.getRoute();
 
+		if (this.isIgnoredHashUsedToLeave(route)) {
+			this.previousRouteBeforeLeaving = this.getPreviousRoute(e);
+			return;
+		}
+
+		if (this.isIgnoredHashUsedToComeBack(route)) {
+			this.previousRouteBeforeLeaving = null;
+			return;
+		}
+
 		// Check if the step can be displayed
 		const datas = this.checkIfTheStepCanBeDisplay({
 			route: route,
@@ -88,9 +99,15 @@ export default class Router {
 		// Event listener does not exist when setRoute is called manually
 		if (e) {
 			// Get the previous route
-			this.previousRoute = this.stepRedirected.redirect
-				? this.stepRedirected.previousRoute
-				: this.getPreviousRoute(e);
+			// Check if the user has used the navigation during an ignored hash
+			if (this.previousRouteBeforeLeaving) {
+				this.previousRoute = this.previousRouteBeforeLeaving;
+				this.previousRouteBeforeLeaving = null;
+			} else {
+				this.previousRoute = this.stepRedirected.redirect
+					? this.stepRedirected.previousRoute
+					: this.getPreviousRoute(e);
+			}
 
 			// Check if previous step need to be destroyed
 			// Prevent destruction when previousRoute does not exist or when user is redirected
@@ -271,6 +288,30 @@ export default class Router {
 		});
 
 		return indexCurrentRoute < indexPreviousRoute;
+	}
+
+	/**
+	 * Check if the user is leaving with an ignored hash
+	 *
+	 * @param {String} route Current route
+	 *
+	 * @returns {Boolean} User is leaving
+	 */
+	isIgnoredHashUsedToLeave(route) {
+		return this.options.ignoredHash.includes(route);
+	}
+
+	/**
+	 * Check if the user returns to the same previous route
+	 *
+	 * @param {String} route Current route
+	 *
+	 * @returns {Boolean} User has returned
+	 */
+	isIgnoredHashUsedToComeBack(route) {
+		return (
+			this.previousRouteBeforeLeaving !== null && this.previousRouteBeforeLeaving === route
+		);
 	}
 
 	/**

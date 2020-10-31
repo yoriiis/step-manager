@@ -4,7 +4,7 @@ import CacheManager from './cache-manager';
 /**
  * @license MIT
  * @name StepManager
- * @version 1.2.0
+ * @version 1.2.1
  * @author: Yoriiis aka Joris DANIEL <joris.daniel@gmail.com>
  * @description: StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
  * {@link https://github.com/yoriiis/step-manager}
@@ -23,6 +23,7 @@ export default class Manager {
 			steps: [],
 			cacheMethod: 'sessionStorage',
 			keyBrowserStorage: 'stepManager',
+			ignoredHash: [],
 			onComplete: () => {},
 			onChange: () => {}
 		};
@@ -54,6 +55,7 @@ export default class Manager {
 			defaultRoute: results.defaultRoute,
 			stepsOrder: results.stepsOrder,
 			steps: this.steps,
+			ignoredHash: this.options.ignoredHash,
 			getDatasFromCache: (filters) => this.CacheManager.getDatasFromCache(filters),
 			onChange: this.options.onChange
 		});

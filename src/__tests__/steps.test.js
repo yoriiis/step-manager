@@ -51,17 +51,17 @@ afterEach(() => {});
 describe('Steps fields', () => {
 	it('Should initialize public instance fields', () => {
 		expect(steps.fallbackRoute).toBe(null);
-		expect(steps.optionalStep).toBeFalsy();
+		expect(steps.optionalStep).toBe(false);
 		expect(steps.clickOnCurrentStep).toBe(steps.clickOnCurrentStep);
 	});
 });
 
 describe('Steps render', () => {
 	it('Should call the render function', () => {
-		steps.requestOptions = jest.fn().mockImplementation(() => getOptions());
+		steps.requestOptions = jest.fn().mockReturnValue(getOptions());
 		steps.afterRender = jest.fn();
 		steps.getStepDatasToRender = jest.fn().mockReturnValue({});
-		steps.getTemplate = jest.fn().mockImplementation(() => 'CONTENT');
+		steps.getTemplate = jest.fn().mockReturnValue('CONTENT');
 		jest.spyOn(steps.options.element, 'insertAdjacentHTML');
 
 		steps.render(datas);
@@ -217,22 +217,22 @@ describe('Steps clickToPreviousStep', () => {
 
 describe('Steps checkIfStepIsReadyToSubmit', () => {
 	it('Should call the checkIfStepIsReadyToSubmit function', () => {
-		steps.getDatasFromStep = jest.fn().mockImplementation(() => true);
+		steps.getDatasFromStep = jest.fn().mockReturnValue(true);
 		steps.updateButtonToValidateStep = jest.fn();
 
 		steps.checkIfStepIsReadyToSubmit();
 
-		expect(steps.stepIsReadyToSubmit).toBeTruthy();
+		expect(steps.stepIsReadyToSubmit).toBe(true);
 		expect(steps.updateButtonToValidateStep).toHaveBeenCalled();
 	});
 
 	it('Should call the checkIfStepIsReadyToSubmit function without datas from steps', () => {
-		steps.getDatasFromStep = jest.fn().mockImplementation(() => null);
+		steps.getDatasFromStep = jest.fn().mockReturnValue(null);
 		steps.updateButtonToValidateStep = jest.fn();
 
 		steps.checkIfStepIsReadyToSubmit();
 
-		expect(steps.stepIsReadyToSubmit).toBeFalsy();
+		expect(steps.stepIsReadyToSubmit).toBe(false);
 		expect(steps.updateButtonToValidateStep).toHaveBeenCalled();
 	});
 });
