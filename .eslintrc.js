@@ -16,7 +16,7 @@ module.exports = {
 		jest: true
 	},
 
-	extends: 'standard',
+	extends: ['standard', 'plugin:react/recommended'],
 
 	plugins: ['prettier'],
 
@@ -28,11 +28,22 @@ module.exports = {
 		'space-before-function-paren': [
 			'error',
 			{ anonymous: 'never', named: 'never', asyncArrow: 'always' }
-		]
+		],
+		'react/prop-types': 0,
+		'react/display-name': 0,
+		'react/jsx-key': 0
 	},
 
 	globals: {
 		document: false,
 		window: false
+	},
+
+	settings: {
+		react: {
+			pragma: 'createElement',
+			fragment: 'Fragment',
+			version: '0' // Remove the warning of the missing React package
+		}
 	}
 };

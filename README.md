@@ -160,7 +160,9 @@ return {
 
 `Function`
 
-The function returns the HTML template of the step and exposes the return of the `getStepDatasToRender` function as parameter.
+The function returns the template as HTML string or HTMLElement for the step and exposes the return of the `getStepDatasToRender` function as parameter.
+
+> Template can be written with template literals (String) or with JSX (HTMLElement). The demo includes templates in both types for the example.
 
 #### `getStepDatasToRender`
 

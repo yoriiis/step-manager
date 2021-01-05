@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.2.2
+
+### New features
+
+* Render the template in HTML string with template literals for exemple or by HTMLElement with JSX.
+
 ## 1.2.1
 
 ### New features
