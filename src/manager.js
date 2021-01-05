@@ -4,7 +4,7 @@ import CacheManager from './cache-manager';
 /**
  * @license MIT
  * @name StepManager
- * @version 1.2.1
+ * @version 1.2.2
  * @author: Yoriiis aka Joris DANIEL <joris.daniel@gmail.com>
  * @description: StepManager is a library to create flexible and robust multiple steps navigation with hash, validations, browser storage and hook functions.
  * {@link https://github.com/yoriiis/step-manager}

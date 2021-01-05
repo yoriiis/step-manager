@@ -1,4 +1,5 @@
 import CustomSteps from './custom-steps';
+import { createElement } from 'jsx-dom';
 
 export default class StepPeople extends CustomSteps {
 	// Set public instance fields
@@ -10,27 +11,30 @@ export default class StepPeople extends CustomSteps {
 	 * Get step template
 	 * Template come from the specific template variable templateStep
 	 *
-	 * @returns {Object} Generated HTML for the step
+	 * @returns {HTMLElement} HTMLElement for the step
 	 */
 	getTemplate(datas) {
-		/* prettier-ignore */
-		return `<div class="step-people">
-                    <h2 class="title">Choose your favorites people</h2>
-					<ul class="list">
-						${datas.map((people, index) => `
-							<li class="list-item">
-								<button class="list-button" data-list-button data-key="${index}">
-									${people.name}
-								</button>
-							</li>
-						`).join('')}
-					</ul>
-					<ul class="nav">
-						<li class="nav-item">
-							<button type="submit" class="btn disabled" data-step-next>Next step</button>
+		return (
+			<div className="step-people">
+				<h2 className="title">Choose your favorites people</h2>
+				<ul className="list">
+					{datas.map((people, index) => (
+						<li className="list-item">
+							<button className="list-button" data-list-button data-key={index}>
+								{people.name}
+							</button>
 						</li>
-					</ul>
-                </div>`;
+					))}
+				</ul>
+				<ul className="nav">
+					<li className="nav-item">
+						<button type="submit" className="btn disabled" data-step-next>
+							Next step
+						</button>
+					</li>
+				</ul>
+			</div>
+		);
 	}
 
 	/**

@@ -10,7 +10,7 @@ export default class StepSpecie extends CustomSteps {
 	/**
 	 * Get step template
 	 *
-	 * @returns {Object} Generated HTML for the step
+	 * @returns {String} Generated HTML for the step
 	 */
 	getTemplate(datas) {
 		/* prettier-ignore */

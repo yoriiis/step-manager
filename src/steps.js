@@ -15,12 +15,14 @@ export default class Steps {
 	render(datas) {
 		this.options = this.requestOptions();
 
-		// Insert the generated HTML for the step
+		// Insert the template (HTMLElement or HTML string) for the step
 		// Get the template from the specific class and send it datas
-		this.options.element.insertAdjacentHTML(
-			'beforeend',
-			this.getTemplate(this.getStepDatasToRender())
-		);
+		const template = this.getTemplate(this.getStepDatasToRender());
+		if (template instanceof HTMLElement) {
+			this.options.element.appendChild(template);
+		} else {
+			this.options.element.insertAdjacentHTML('beforeend', template);
+		}
 
 		// The DOM is up to date, trigger the after render method with datas from the cache
 		this.afterRender(datas);

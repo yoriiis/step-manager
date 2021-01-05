@@ -1,4 +1,5 @@
 import Steps from '../steps';
+import { createElement } from 'jsx-dom';
 
 let steps;
 const datas = { 'id-people': true };
@@ -57,12 +58,13 @@ describe('Steps fields', () => {
 });
 
 describe('Steps render', () => {
-	it('Should call the render function', () => {
+	it('Should call the render function with HTML', () => {
 		steps.requestOptions = jest.fn().mockReturnValue(getOptions());
 		steps.afterRender = jest.fn();
 		steps.getStepDatasToRender = jest.fn().mockReturnValue({});
 		steps.getTemplate = jest.fn().mockReturnValue('CONTENT');
 		jest.spyOn(steps.options.element, 'insertAdjacentHTML');
+		steps.options.element.appendChild = jest.fn();
 
 		steps.render(datas);
 
@@ -71,6 +73,25 @@ describe('Steps render', () => {
 			'beforeend',
 			'CONTENT'
 		);
+		expect(steps.options.element.appendChild).not.toHaveBeenCalled();
+		expect(steps.getTemplate).toHaveBeenCalledWith({});
+		expect(steps.getStepDatasToRender).toHaveBeenCalled();
+		expect(steps.afterRender).toHaveBeenCalledWith(datas);
+	});
+
+	it('Should call the render function with HTMLElement', () => {
+		steps.requestOptions = jest.fn().mockReturnValue(getOptions());
+		steps.afterRender = jest.fn();
+		steps.getStepDatasToRender = jest.fn().mockReturnValue({});
+		steps.getTemplate = jest.fn().mockReturnValue(<div>CONTENT</div>);
+		jest.spyOn(steps.options.element, 'appendChild');
+		steps.options.element.insertAdjacentHTML = jest.fn();
+
+		steps.render(datas);
+
+		expect(steps.requestOptions).toHaveBeenCalled();
+		expect(steps.options.element.appendChild).toHaveBeenCalledWith(<div>CONTENT</div>);
+		expect(steps.options.element.insertAdjacentHTML).not.toHaveBeenCalled();
 		expect(steps.getTemplate).toHaveBeenCalledWith({});
 		expect(steps.getStepDatasToRender).toHaveBeenCalled();
 		expect(steps.afterRender).toHaveBeenCalledWith(datas);
