@@ -58,7 +58,7 @@ describe('Steps fields', () => {
 });
 
 describe('Steps render', () => {
-	it('Should call the render function with HTML', () => {
+	it('Should call the render function with HTML string', () => {
 		steps.requestOptions = jest.fn().mockReturnValue(getOptions());
 		steps.afterRender = jest.fn();
 		steps.getStepDatasToRender = jest.fn().mockReturnValue({});
@@ -89,12 +89,8 @@ describe('Steps render', () => {
 
 		steps.render(datas);
 
-		expect(steps.requestOptions).toHaveBeenCalled();
 		expect(steps.options.element.appendChild).toHaveBeenCalledWith(<div>CONTENT</div>);
 		expect(steps.options.element.insertAdjacentHTML).not.toHaveBeenCalled();
-		expect(steps.getTemplate).toHaveBeenCalledWith({});
-		expect(steps.getStepDatasToRender).toHaveBeenCalled();
-		expect(steps.afterRender).toHaveBeenCalledWith(datas);
 	});
 });
 
