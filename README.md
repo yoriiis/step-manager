@@ -1,3 +1,5 @@
+> **Warning** `step-manager` is deprecated and has been merged into the `costrojs` project. See [Costrojs](https://github.com/costrojs/costro) for its successor 🎉
+
 # StepManager
 
 ![StepManager](https://img.shields.io/badge/step--manager-v1.2.1-ff004b.svg?style=for-the-badge) ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/yoriiis/step-manager/build.yml?branch=master&style=for-the-badge) [![Coverage Status](https://img.shields.io/coveralls/github/yoriiis/step-manager?style=for-the-badge)](https://coveralls.io/github/yoriiis/step-manager?branch=master)  ![Node.js](https://img.shields.io/node/v/step-manager?style=for-the-badge)
