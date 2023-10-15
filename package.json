@@ -19,7 +19,7 @@
 	"homepage": "https://github.com/yoriiis/step-manager",
 	"bugs": "https://github.com/yoriiis/step-manager/issues",
 	"repository": "https://github.com/yoriiis/step-manager.git",
-	"author": "Yoriiis aka Joris DANIEL",
+	"author": "Yoriiis",
 	"main": "dist/step-manager.js",
 	"scripts": {
 		"build": "rm -rf ./dist/ && webpack --mode=production",
